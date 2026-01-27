@@ -1,33 +1,17 @@
 <?php
-session_start();
+// Secure Entry Point
+$uri = urldecode(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH));
 
-// Guard: Kick out if not logged in
-if (empty($_SESSION['user'])) {
-    header('Location: login.php');
-    exit;
+// If the requested resource exists as a file, serve it (Router script compatibility)
+if ($uri !== '/' && $uri !== '/index.php' && file_exists(__DIR__ . $uri)) {
+    return false;
 }
+
+// Redirect to PHPs/index.php relative to the current script's directory
+// This supports both root deployment (php -S) and subdirectory deployment (Apache)
+$base = dirname($_SERVER['SCRIPT_NAME']);
+// Ensure no double slashes if base is /
+$base = rtrim($base, '/\\');
+header('Location: ' . $base . '/PHPs/index.php');
+exit;
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home</title>
-    <style>body{font-family:Arial,Helvetica,sans-serif;padding:20px}</style>
-</head>
-<body>
-    <h1>Welcome, <?= htmlspecialchars($_SESSION['user']) ?></h1>
-
-    <?php if ($_SESSION['is_admin'] ?? false): ?>
-        <div style="padding: 10px; border: 1px solid gold; background-color: #fffbe6; display: inline-block;">
-            <strong>Admin Access Granted</strong><br>
-            <a href="admin.php">Go to Admin Dashboard</a>
-        </div>
-    <?php endif; ?>
-
-    <br><br>
-    <form method="post" action="logout.php">
-        <button type="submit">Log out</button>
-    </form>
-</body>
-</html>

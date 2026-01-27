@@ -1,0 +1,11 @@
+.gitignore for SQL-Explore
+
+# Ignore local config with credentials
+config.php
+PHPs/config.php
+
+# Common ignores
+/vendor/
+.env
+.DS_Store
+*.log

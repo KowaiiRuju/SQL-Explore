@@ -1,0 +1,14 @@
+# Disable directory listings and prefer index.php
+Options -Indexes
+DirectoryIndex index.php
+
+# Block access to sensitive files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+<FilesMatch "^(README\.md|composer\.json|package\.json)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

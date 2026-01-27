@@ -1,0 +1,15 @@
+/* Login Page Styles */
+.login-title {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.btn-full {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.auth-link {
+    text-align: center;
+    margin-top: 1.5rem;
+}

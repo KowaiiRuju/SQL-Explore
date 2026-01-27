@@ -1,0 +1,111 @@
+/* Admin Dashboard Styles */
+/* Body styles handled by style.css */
+
+
+table {
+    border-collapse: collapse;
+    background: #fff;
+    width: 100%;
+}
+
+th,
+td {
+    padding: 8px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+.muted {
+    color: #666;
+    font-size: 90%;
+}
+
+.actions form {
+    display: inline;
+}
+
+/* Modal Styles */
+/* Modal Styles handled by Bootstrap 5 */
+/* Custom overrides if needed */
+.modal-content {
+    background-color: #fefefe;
+    /* margin: 10% auto; Handled by BS */
+    /* padding: 20px; Handled by BS */
+    border: 1px solid #888;
+    /* width: 90%; BS handles widths */
+}
+
+.modal-form label {
+    display: block;
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.modal-form input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+    margin-top: 5px;
+}
+
+.modal-form button {
+    margin-top: 15px;
+    padding: 8px 15px;
+    background: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.modal-form button:hover {
+    background: #0056b3;
+}
+
+.modal-form a {
+    display: inline-block;
+    margin-left: 10px;
+    padding: 8px 15px;
+    background: #6c757d;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.modal-form a:hover {
+    background: #5a6268;
+}
+
+.add-user-btn {
+    padding: 10px 20px;
+    background: #28a745;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.add-user-btn:hover {
+    background: #218838;
+}
+
+/* Utility classes replacing inline styles */
+.text-success {
+    color: green;
+    margin: 8px 0;
+}
+
+.text-error {
+    color: #b22222;
+    margin: 8px 0;
+}
+
+.inline-form {
+    display: inline;
+    margin-left: 8px;
+}
+
+.ml-1 {
+    margin-left: 8px;
+}
