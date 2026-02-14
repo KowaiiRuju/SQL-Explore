@@ -1,15 +1,24 @@
 /* Login Page Styles */
 .login-title {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
 }
 
 .btn-full {
     width: 100%;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
 }
 
 .auth-link {
     text-align: center;
-    margin-top: 1.5rem;
+    margin-top: 1.25rem;
+    font-size: var(--input-font);
+}
+
+.form-hint {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 0.3rem;
+    display: block;
 }

@@ -51,12 +51,12 @@ if (empty($_SESSION['user']) || empty($_SESSION['is_admin'])) {
                 $mn = trim($_POST['m_name'] ?? '');
                 $ln = trim($_POST['l_name'] ?? '');
                 $gen = $_POST['gender'] ?? '';
-                $age = (int)($_POST['age'] ?? 0);
+                $birthdate = $_POST['birthdate'] ?? null;
 
                 if ($id <= 0 || $u === '') {
                     $error = 'Invalid input for edit.';
                 } else {
-                    $sql = "UPDATE users SET username=:u, is_admin=:a, f_name=:fn, m_name=:mn, l_name=:ln, gender=:g, age=:age";
+                    $sql = "UPDATE users SET username=:u, is_admin=:a, f_name=:fn, m_name=:mn, l_name=:ln, gender=:g, birthdate=:b";
                     $params = [
                         ':u' => $u, 
                         ':a' => $isAdmin, 
@@ -64,7 +64,7 @@ if (empty($_SESSION['user']) || empty($_SESSION['is_admin'])) {
                         ':mn' => $mn, 
                         ':ln' => $ln, 
                         ':g' => $gen, 
-                        ':age' => $age,
+                        ':b' => $birthdate,
                         ':id' => $id
                     ];
 
@@ -256,8 +256,8 @@ if (empty($_SESSION['user']) || empty($_SESSION['is_admin'])) {
                                         </select>
                                     </div>
                                     <div class="col-md-6">
-                                        <label class="form-label">Age</label>
-                                        <input type="number" name="age" class="form-control" value="<?=htmlspecialchars($editUser['age'] ?? '')?>" min="1">
+                                        <label class="form-label">Birthday</label>
+                                        <input type="date" name="birthdate" class="form-control" value="<?=htmlspecialchars($editUser['birthdate'] ?? '')?>">
                                     </div>
 
                                     <div class="col-12">

@@ -44,7 +44,7 @@ function ensure_setup() {
         'm_name' => 'VARCHAR(100)',
         'l_name' => 'VARCHAR(100)',
         'gender' => 'VARCHAR(20)',
-        'age'    => 'INT',
+        'birthdate' => 'DATE',
         'profile_pic' => 'VARCHAR(255)'
     ];
 

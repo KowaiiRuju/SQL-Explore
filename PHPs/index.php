@@ -75,9 +75,12 @@ try {
                             <img src="../uploads/<?= htmlspecialchars($userProfile['profile_pic']) ?>" 
                                  alt="Profile Picture" 
                                  class="welcome-profile-pic rounded-circle"
-                                 style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--primary);">
+                                 style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--primary); cursor: pointer;"
+                                 data-bs-toggle="modal" data-bs-target="#profileModal">
                         <?php else: ?>
-                            <div class="welcome-avatar" style="width: 80px; height: 80px; background: linear-gradient(45deg, var(--primary), #f472b6); display: flex; align-items: center; justify-content: center; border-radius: 50%;">
+                            <div class="welcome-avatar" 
+                                 style="width: 80px; height: 80px; background: linear-gradient(45deg, var(--primary), #f472b6); display: flex; align-items: center; justify-content: center; border-radius: 50%; cursor: pointer;"
+                                 data-bs-toggle="modal" data-bs-target="#profileModal">
                                 <i class="bi bi-person-fill" style="font-size: 2.5rem; color: #fff;"></i>
                             </div>
                         <?php endif; ?>
@@ -100,6 +103,7 @@ try {
                 </div>
             </div>
 
+            <?php if (!empty($userProfile['is_admin'])): ?>
             <!-- Stats Cards -->
             <div class="row g-4 mb-4">
                 <div class="col-md-4">
@@ -136,6 +140,7 @@ try {
                     </div>
                 </div>
             </div>
+            <?php endif; ?>
 
 
 
@@ -170,7 +175,17 @@ try {
                                 <i class="bi bi-gender-ambiguous"></i> <?= htmlspecialchars($userProfile['gender'] ?? 'Not set') ?>
                             </span>
                             <span class="badge bg-light text-dark border">
-                                <i class="bi bi-calendar-event"></i> <?= htmlspecialchars($userProfile['age'] ?? 'N/A') ?> years
+                                <i class="bi bi-calendar-event"></i> 
+                                <?php 
+                                    if (!empty($userProfile['birthdate'])) {
+                                        $birthDate = new DateTime($userProfile['birthdate']);
+                                        $today = new DateTime();
+                                        $age = $inside_age = $today->diff($birthDate)->y;
+                                        echo htmlspecialchars($age) . ' years';
+                                    } else {
+                                        echo 'N/A';
+                                    }
+                                ?>
                             </span>
                             <span class="badge bg-light text-dark border">
                                 <i class="bi bi-envelope"></i> <?= htmlspecialchars($userProfile['email'] ?? 'No email') ?>

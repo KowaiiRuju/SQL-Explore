@@ -37,12 +37,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
     $m_name = trim($_POST['m_name'] ?? '');
     $l_name = trim($_POST['l_name'] ?? '');
     $gender = $_POST['gender'] ?? '';
-    $age = (int)($_POST['age'] ?? 0);
+    $birthdate = $_POST['birthdate'] ?? '';
     $uploadPath = $user['profile_pic'] ?? null; // Default to existing
 
     // Validation
-    if (empty($f_name) || empty($l_name) || empty($gender) || $age <= 0) {
-        $error = 'Please fill in all required fields (First Name, Last Name, Gender, Age).';
+    if (empty($f_name) || empty($l_name) || empty($gender) || empty($birthdate)) {
+        $error = 'Please fill in all required fields (First Name, Last Name, Gender, Birthday).';
     } else {
         // Handle File Upload
         if (isset($_FILES['profile_pic']) && $_FILES['profile_pic']['error'] === UPLOAD_ERR_OK) {
@@ -88,14 +88,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
 
     if (!$error) {
         try {
-            $sql = 'UPDATE users SET f_name=:fn, m_name=:mn, l_name=:ln, gender=:g, age=:a, profile_pic=:pic WHERE id=:id';
+            $sql = 'UPDATE users SET f_name=:fn, m_name=:mn, l_name=:ln, gender=:g, birthdate=:b, profile_pic=:pic WHERE id=:id';
             $upd = $pdo->prepare($sql);
             $upd->execute([
                 ':fn' => $f_name,
                 ':mn' => $m_name,
                 ':ln' => $l_name,
                 ':g' => $gender,
-                ':a' => $age,
+                ':b' => $birthdate,
                 ':pic' => $uploadPath,
                 ':id' => $user['id']
             ]);
@@ -198,7 +198,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
                             $m_name_val = $_POST['m_name'] ?? $user['m_name'] ?? '';
                             $l_name_val = $_POST['l_name'] ?? $user['l_name'] ?? '';
                             $gender_val = $_POST['gender'] ?? $user['gender'] ?? '';
-                            $age_val = $_POST['age'] ?? $user['age'] ?? '';
+                            $birthdate_val = $_POST['birthdate'] ?? $user['birthdate'] ?? '';
                         ?>
 
                         <div class="col-md-4">
@@ -224,8 +224,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $user) {
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Age</label>
-                            <input type="number" name="age" class="form-control" value="<?=htmlspecialchars($age_val)?>" min="1" required>
+                            <label class="form-label">Birthday</label>
+                            <input type="date" name="birthdate" class="form-control" value="<?=htmlspecialchars($birthdate_val)?>" required>
                         </div>
 
                         <div class="col-12 mt-4 text-end">
