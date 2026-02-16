@@ -1,0 +1,127 @@
+/* Landing Page Styles - Pastel Theme */
+
+.landing-page {
+    background-color: #ffffff;
+    /* Explicit White Background */
+    overflow-x: hidden;
+    position: relative;
+    min-height: 100vh;
+    font-family: 'Poppins', sans-serif;
+    color: #2d3436;
+    /* Soft Dark Grey */
+}
+
+/* Navbar */
+.navbar .nav-link {
+    color: #636e72 !important;
+    /* Muted Grey */
+    font-weight: 500;
+    margin: 0 10px;
+    transition: color 0.3s;
+}
+
+.navbar .nav-link:hover,
+.navbar .nav-link.active {
+    color: #74b9ff !important;
+    /* Pastel Blue */
+}
+
+.spacing-wide {
+    letter-spacing: 0.5px;
+}
+
+/* Hero Section */
+.hero-section {
+    min-height: 90vh;
+    /* Taller hero */
+    position: relative;
+    z-index: 2;
+    padding-top: 0;
+}
+
+.hero-title {
+    color: #2d3436;
+    letter-spacing: 1px;
+    line-height: 1.2;
+    font-weight: 800;
+}
+
+.hero-text {
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: #636e72;
+}
+
+/* Buttons */
+.btn-primary {
+    background: linear-gradient(135deg, #a29bfe 0%, #74b9ff 100%);
+    /* Pastel Purple to Blue */
+    border: none;
+    color: white;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(116, 185, 255, 0.3) !important;
+    background: linear-gradient(135deg, #6c5ce7 0%, #0984e3 100%);
+    /* Slightly darker on hover */
+    color: white;
+}
+
+/* Hero Image & Bubbles */
+.hero-image-container {
+    padding: 20px;
+    text-align: center;
+}
+
+.chat-bubble {
+    position: absolute;
+    background: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    /* Softer shadow */
+    color: #a29bfe;
+    /* Pastel Icon Color */
+    font-size: 1.5rem;
+    animation: float 3s ease-in-out infinite;
+}
+
+.bubble-1 {
+    top: 15%;
+    left: 10%;
+    animation-delay: 0s;
+}
+
+.bubble-2 {
+    top: 25%;
+    right: 15%;
+    animation-delay: 1.5s;
+}
+
+.bubble-3 {
+    bottom: 20%;
+    right: 10%;
+    animation-delay: 0.8s;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-12px);
+    }
+}
+
+/* Optional Decoration: Pastel Blobs instead of heavy waves */
+.landing-bg-wave {
+    display: none;
+    /* Remove old wave */
+}
+
+/* Can add new minimal decorations if needed, but "white background" is requested */

@@ -1,0 +1,27 @@
+/* ============================
+   Profile View Styles
+   ============================ */
+
+.btn-back {
+    z-index: 10;
+    width: 42px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    backdrop-filter: blur(4px);
+    transition: all 0.2s;
+}
+
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.4);
+    color: #fff;
+    transform: scale(1.05);
+}
+
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}

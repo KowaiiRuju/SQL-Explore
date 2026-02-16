@@ -1,0 +1,139 @@
+/* ============================
+   Friends Page Styles
+   ============================ */
+
+/* Search Box */
+.search-box input {
+    height: 50px;
+    font-size: 1rem;
+    border: none;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+
+.search-box input:focus {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Mobile Search Bar Adjustment */
+@media (max-width: 991px) {
+
+    /* Mobile Search Bar Adjustment */
+    .search-container-mobile {
+        position: sticky;
+        top: 60px;
+        /* Below the ~60px header */
+        z-index: 999;
+        padding: 10px 15px;
+        background: #fff;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border-bottom: 1px solid #f0f0f0;
+        margin-bottom: 0 !important;
+        /* Start content immediately */
+    }
+
+    /* Adjust main content padding just to clear the main fixed header (~60px) */
+    main.col-lg-9 {
+        padding-top: 70px !important;
+        /* 60px header + 10px breathing room */
+        overflow-y: auto !important;
+        height: 100vh;
+    }
+
+    .search-box input {
+        border-radius: 8px;
+        /* Less rounded on mobile to fit bar */
+        height: 40px;
+        font-size: 0.95rem;
+    }
+}
+
+/* Allow scrolling on desktop too */
+@media (min-width: 992px) {
+
+    main.col-lg-9,
+    main.col-xl-10 {
+        overflow-y: auto !important;
+        height: 100vh;
+        padding-bottom: 2rem;
+    }
+}
+
+/* Search Results Grid */
+#searchResultsGrid {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+#searchResultsGrid::-webkit-scrollbar {
+    width: 6px;
+}
+
+#searchResultsGrid::-webkit-scrollbar-thumb {
+    background: #dfe6e9;
+    border-radius: 3px;
+}
+
+#searchResultsGrid::-webkit-scrollbar-thumb:hover {
+    background: #b2bec3;
+}
+
+#searchResultsGrid .col-12 {
+    margin-bottom: 2px;
+}
+
+
+/* Tabs */
+.nav-pills .nav-link {
+    color: #636e72;
+    background: #fff;
+    border: 1px solid #f1f2f6;
+    font-weight: 500;
+    padding-top: 0.6rem;
+    padding-bottom: 0.6rem;
+    transition: all 0.2s;
+}
+
+.nav-pills .nav-link:hover {
+    background: #f8f9fa;
+    color: #2d3436;
+}
+
+.nav-pills .nav-link.active {
+    background: #6c5ce7;
+    color: #fff;
+    border-color: #6c5ce7;
+    box-shadow: 0 4px 12px rgba(108, 92, 231, 0.3);
+}
+
+.nav-pills .nav-link .badge {
+    font-weight: 700;
+    vertical-align: text-bottom;
+}
+
+/* User Cards */
+.card-body {
+    padding: 1.25rem;
+}
+
+.rounded-circle {
+    transition: transform 0.2s;
+}
+
+.card:hover .rounded-circle {
+    transform: scale(1.05);
+}
+
+/* Actions */
+.action-btn {
+    font-size: 0.85rem;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}

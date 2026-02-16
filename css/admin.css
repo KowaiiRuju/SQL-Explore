@@ -1,15 +1,45 @@
-/* Admin Dashboard Styles */
+/* Admin Dashboard Styles – Unified with Newsfeed Aesthetic */
 
-/* Table refinements (Bootstrap handles base styles) */
+/* ── Admin Card (main content card) ──────────────────── */
+.admin-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+/* ── Table refinements ────────────────────────────────── */
 .table th,
 .table td {
-    font-size: var(--input-font);
+    font-size: var(--input-font, 0.95rem);
     vertical-align: middle;
+}
+
+.admin-card .table {
+    margin-bottom: 0;
+}
+
+.admin-card .table thead th {
+    position: sticky;
+    top: 0;
+    background-color: #f8f9fa;
+    z-index: 10;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-bottom: 2px solid #e9ecef;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #636e72;
+}
+
+.admin-card .table-hover tbody tr:hover {
+    background-color: #f0f3ff;
 }
 
 /* Utility classes */
 .muted {
-    color: var(--text-muted);
+    color: var(--text-muted, #b2bec3);
     font-size: 0.85rem;
 }
 
@@ -17,12 +47,109 @@
     display: inline;
 }
 
-/* Inline form for delete buttons */
 .inline-form {
     display: inline;
     margin-left: 0.5rem;
 }
 
-.ml-1 {
-    margin-left: 0.5rem;
+/* ── Search Bar ──────────────────────────────────────── */
+.search-bar .input-group {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.search-bar .input-group .input-group-text {
+    border: 1px solid #dee2e6;
+    border-right: none;
+}
+
+.search-bar .input-group .form-control {
+    border: 1px solid #dee2e6;
+    border-left: none;
+}
+
+.search-bar .input-group .form-control:focus {
+    box-shadow: none;
+    border-color: #6c5ce7;
+}
+
+.search-bar .input-group .form-control:focus+.input-group-text,
+.search-bar .input-group:focus-within .input-group-text {
+    border-color: #6c5ce7;
+    color: #6c5ce7;
+}
+
+/* Filter toggle button */
+.filter-toggle-btn {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s, transform 0.3s, color 0.2s;
+}
+
+.filter-toggle-btn.active {
+    background-color: #6c5ce7;
+    border-color: #6c5ce7;
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+/* Animated filter panel */
+.filter-panel {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        opacity 0.25s ease,
+        margin-top 0.3s ease;
+    margin-top: 0;
+}
+
+.filter-panel.open {
+    max-height: 200px;
+    opacity: 1;
+    margin-top: 0.75rem;
+}
+
+.filter-panel-inner {
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 0.5rem;
+}
+
+/* ── Scrollable table area ────────────────────────────── */
+.admin-card .table-responsive {
+    max-height: calc(100vh - 340px);
+    overflow-y: auto;
+    margin-top: 1rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
+}
+
+.admin-card .table-responsive::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+.admin-card .table-responsive::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+}
+
+.admin-card .table-responsive::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+}
+
+/* ── Admin page main content scroll ──────────────────── */
+body.admin-page main.col-lg-9,
+body.admin-page main.col-xl-10 {
+    height: 100vh;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

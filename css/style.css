@@ -38,14 +38,16 @@ body {
     line-height: 1.6;
     min-height: 100vh;
     font-size: 0.95rem;
+    overflow-y: auto;
 }
 
 /* ---------- Auth page backgrounds ---------- */
 .body-signup {
     display: flex;
-    align-items: center;
+    align-items: safe center;
     justify-content: center;
     flex-direction: column;
+    padding: 2rem 1rem;
     background-color: #F595A6;
     background-image: url('../images/sanrio-pochacco-5120x2880-14774.png');
     background-repeat: no-repeat;
@@ -57,11 +59,12 @@ body {
 
 .body-login {
     display: flex;
-    align-items: center;
+    align-items: safe center;
     justify-content: center;
     flex-direction: column;
+    padding: 2rem 1rem;
     background-color: #d1fbff;
-    background-image: url('../images/9918.png');
+
     background-repeat: no-repeat;
     background-position: center bottom;
     background-size: 600px auto;
@@ -101,6 +104,11 @@ body {
     box-shadow: var(--card-shadow);
     padding: var(--card-padding);
     margin-bottom: 2rem;
+    transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
 }
 
 .intro-text {
@@ -221,20 +229,23 @@ button[type="submit"],
     font-size: var(--input-font);
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s, transform 0.15s;
+    transition: background-color 0.25s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s ease;
     text-align: center;
     display: inline-block;
+    will-change: transform;
 }
 
 button[type="submit"]:hover,
 .btn:hover {
     background-color: var(--primary-hover);
     text-decoration: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 button[type="submit"]:active,
 .btn:active {
     transform: scale(0.97);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary {
@@ -261,6 +272,7 @@ button[type="submit"]:active,
     border-radius: var(--input-radius);
     margin-bottom: 1rem;
     font-size: var(--input-font);
+    animation: fadeSlideIn 0.35s ease-out;
 }
 
 .alert-error {
@@ -285,6 +297,11 @@ button[type="submit"]:active,
     font-size: 0.85rem;
     font-weight: 600;
     margin-bottom: 1rem;
+    transition: background-color 0.25s ease, transform 0.2s ease;
+}
+
+.admin-badge:hover {
+    transform: scale(1.03);
 }
 
 /* ---------- Tables ---------- */
@@ -310,6 +327,14 @@ th {
     letter-spacing: 0.05em;
 }
 
+tr {
+    transition: background-color 0.2s ease;
+}
+
+tr:hover td {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
 tr:last-child td {
     border-bottom: none;
 }
@@ -322,6 +347,20 @@ tr:last-child td {
     flex-direction: column;
     align-items: center;
     min-height: 100vh;
+}
+
+/* ---------- Sidebar Toggle ---------- */
+.sidebar-toggle {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.sidebar-toggle:hover {
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
 /* ---------- Sidebar ---------- */
@@ -402,6 +441,34 @@ tr:last-child td {
     padding: 0.5em 0.8em;
     font-weight: 500;
     font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+}
+
+/* ---------- Global Animations ---------- */
+@keyframes fadeSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
 }
 
 /* ---------- Responsive ---------- */

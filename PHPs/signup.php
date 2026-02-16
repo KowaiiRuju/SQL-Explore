@@ -4,38 +4,39 @@ require_once __DIR__ . '/db.php';
 $message = '';
 $username = trim($_POST['username'] ?? '');
 $password = $_POST['password'] ?? '';
+$email = trim($_POST['email'] ?? '');
 
-// AJAX: Check available username
-if (isset($_GET['action']) && $_GET['action'] === 'check_username') {
-    header('Content-Type: application/json');
-    $u = trim($_GET['username'] ?? '');
-    if (strlen($u) < 3 || !preg_match('/^[a-zA-Z0-9_]+$/', $u)) {
-        echo json_encode(['available' => false, 'message' => 'Invalid format (3+ chars, alphanumeric/underscore)']);
-        exit;
+/**
+ * Validate password strength requirements
+ * @return string Empty if valid, error message if invalid
+ */
+function validate_password_strength($password) {
+    if (strlen($password) < 8) {
+        return 'Password must be at least 8 characters long.';
     }
-    
-    try {
-        $pdo = get_pdo(true);
-        // Ensure table exists before checking (just in case)
-        ensure_setup(); 
-        
-        $stmt = $pdo->prepare('SELECT count(*) FROM users WHERE username = :u');
-        $stmt->execute([':u' => $u]);
-        if ($stmt->fetchColumn() > 0) {
-            echo json_encode(['available' => false, 'message' => 'Username taken']);
-        } else {
-            echo json_encode(['available' => true]);
-        }
-    } catch (Exception $e) {
-        // If DB doesn't exist yet, username is essentially available for the first user
-        echo json_encode(['available' => true]); 
+    if (!preg_match('/[A-Z]/', $password)) {
+        return 'Password must contain at least one uppercase letter.';
     }
-    exit;
+    if (!preg_match('/[0-9]/', $password)) {
+        return 'Password must contain at least one number.';
+    }
+    if (!preg_match('/[!@#$%^&*\-_]/', $password)) {
+        return 'Password must contain at least one special character (!@#$%^&*-_).';
+    }
+    return '';
+}
+
+/**
+ * Validate name fields (letters, hyphens, apostrophes, spaces only)
+ * @return bool True if valid
+ */
+function validate_name($name) {
+    return !empty($name) && strlen($name) <= 100 && preg_match('/^[a-zA-Z\s\'-]{2,}$/', $name);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($username === '' || $password === '') {
-        $message = 'Please provide username and password.';
+    if ($username === '' || $password === '' || $email === '') {
+        $message = 'Please provide username, email, and password.';
     } else {
         try {
             // Connect to server (no DB) so we can create the database if it doesn't exist
@@ -48,48 +49,76 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Ensure schema is correct (table exists, columns exist)
             ensure_setup();
 
-            // Check if user exists
-            $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :u');
-            $stmt->execute([':u' => $username]);
-            
-            if ($stmt->fetch()) {
-                $message = 'Username already taken.';
+            // Validation: Username format and length
+            if (strlen($username) < 3 || strlen($username) > 20) {
+                $message = 'Username must be 3-20 characters long.';
+            } elseif (!preg_match('/^[a-zA-Z0-9_-]+$/', $username)) {
+                $message = 'Username must contain only letters, numbers, underscores, and hyphens.';
+            } 
+            // Validation: Email format
+            elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $message = 'Please provide a valid email address.';
+            }
+            // Validation: Password strength
+            elseif ($passwordError = validate_password_strength($password)) {
+                $message = $passwordError;
             } else {
-                // Validation Rules
-                if (strlen($username) < 3 || !preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
-                    $message = 'Username must be at least 3 characters and contain only letters, numbers, and underscores.';
-                } elseif (strlen($password) < 8) {
-                    $message = 'Password must be at least 8 characters long.';
-                } else {
-                    $f_name = trim($_POST['f_name'] ?? '');
-                    $m_name = trim($_POST['m_name'] ?? '');
-                    $l_name = trim($_POST['l_name'] ?? '');
-                    $gender = $_POST['gender'] ?? '';
-                    $birthdate = $_POST['birthdate'] ?? '';
-
-                    if (empty($f_name) || empty($l_name) || empty($gender) || empty($birthdate)) {
-                        $message = 'Please fill in all required profile fields (First Name, Last Name, Gender, Birthday).';
+                // Check if username already exists
+                $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :u');
+                $stmt->execute([':u' => $username]);
+                
+                if ($stmt->fetch()) {
+                    $message = 'Username already taken. Please choose another.';
+                }
+                // Check if email already exists
+                else {
+                    $stmt = $pdo->prepare('SELECT id FROM users WHERE email = :e');
+                    $stmt->execute([':e' => $email]);
+                    
+                    if ($stmt->fetch()) {
+                        $message = 'Email already registered. Please use another or log in.';
                     } else {
-                        // Create new user
-                        $hash = password_hash($password, PASSWORD_DEFAULT);
-                        $ins = $pdo->prepare('INSERT INTO users (username, password, f_name, m_name, l_name, gender, birthdate) VALUES (:u, :p, :fn, :mn, :ln, :g, :b)');
-                        $ins->execute([
-                            ':u' => $username, 
-                            ':p' => $hash,
-                            ':fn' => $f_name,
-                            ':mn' => $m_name,
-                            ':ln' => $l_name,
-                            ':g' => $gender,
-                            ':b' => $birthdate
-                        ]);
-                        
-                        header('Location: login.php?created=1');
-                        exit;
+                        // Get and validate profile fields
+                        $f_name = trim($_POST['f_name'] ?? '');
+                        $m_name = trim($_POST['m_name'] ?? '');
+                        $l_name = trim($_POST['l_name'] ?? '');
+                        $gender = $_POST['gender'] ?? '';
+                        $age = (int)($_POST['age'] ?? 0);
+
+                        // Validate name fields
+                        if (!validate_name($f_name)) {
+                            $message = 'First name is invalid (2-100 characters, letters/hyphens/apostrophes only).';
+                        } elseif (!validate_name($l_name)) {
+                            $message = 'Last name is invalid (2-100 characters, letters/hyphens/apostrophes only).';
+                        } elseif (!empty($m_name) && !validate_name($m_name)) {
+                            $message = 'Middle name is invalid (letters/hyphens/apostrophes only).';
+                        } elseif (empty($gender) || !in_array($gender, ['Male', 'Female', 'Other'])) {
+                            $message = 'Please select a valid gender.';
+                        } elseif ($age < 13 || $age > 150) {
+                            $message = 'Age must be between 13 and 150.';
+                        } else {
+                            // All validation passed - create new user
+                            $hash = password_hash($password, PASSWORD_DEFAULT);
+                            $ins = $pdo->prepare('INSERT INTO users (username, email, password, f_name, m_name, l_name, gender, age) VALUES (:u, :e, :p, :fn, :mn, :ln, :g, :a)');
+                            $ins->execute([
+                                ':u' => $username, 
+                                ':e' => $email,
+                                ':p' => $hash,
+                                ':fn' => $f_name,
+                                ':mn' => $m_name,
+                                ':ln' => $l_name,
+                                ':g' => $gender,
+                                ':a' => $age
+                            ]);
+                            
+                            header('Location: login.php?created=1');
+                            exit;
+                        }
                     }
                 }
             }
         } catch (Exception $e) {
-            $message = 'Database error: ' . htmlspecialchars($e->getMessage());
+            $message = 'An error occurred during registration. Please try again.';
             error_log('Signup error: ' . $e->getFile() . ':' . $e->getLine() . ' - ' . $e->getMessage());
         }
     }
@@ -101,121 +130,71 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>Sign Up - SQL Explore</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/signup.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 <body class="body-signup">
     <div class="container auth-container">
         <div class="card">
+            <h2 style="text-align: center; margin-bottom: 2rem;">Create an account</h2>
             <?php if ($message): ?>
                 <div class="alert alert-error"><?=htmlspecialchars($message)?></div>
             <?php endif; ?>
             
-            <form method="post" action="signup.php" id="signupForm" novalidate>
-                <!-- Step 1: Account -->
-                <div class="step" id="step1">
-                    <div class="step-header">
-                        <h3>Choose a Username</h3>
-                        <p>Let's find you a unique identity.</p>
-                    </div>
-                    <div class="form-group">
-                        <label>Username</label>
-                        <input type="text" name="username" id="usernameInput" value="<?=htmlspecialchars($username)?>" required minlength="3" pattern="[a-zA-Z0-9_]+" autocomplete="username">
-                        <small class="form-hint" id="usernameHint">At least 3 characters, letters/numbers/underscores only.</small>
-                        <div id="usernameFeedback" class="validation-feedback"></div>
-                    </div>
-                    <button type="button" class="btn btn-full btn-primary btn-next" onclick="nextStep(1)">Next <i class="bi bi-arrow-right"></i></button>
+            <form method="post" action="signup.php">
+                <div>
+                    <label>First Name</label>
+                    <input type="text" name="f_name" value="<?=htmlspecialchars($_POST['f_name'] ?? '')?>" required pattern="[a-zA-Z\s\'-]{2,}">
                 </div>
-
-                <!-- Step 2: Security -->
-                <div class="step d-none" id="step2">
-                    <div class="step-header">
-
-                        <h3>Secure your Account</h3>
-                        <p>Pick a strong password.</p>
-                    </div>
-                    <div class="form-group">
-                        <label>Password</label>
-                        <input type="password" name="password" id="passwordInput" required minlength="8" autocomplete="new-password">
-                        <small class="form-hint">Must be at least 8 characters long.</small>
-                    </div>
-                    <div class="buttons-row">
-                        <button type="button" class="btn btn-secondary btn-prev" onclick="prevStep(2)">Back</button>
-                        <button type="button" class="btn btn-primary btn-next" onclick="nextStep(2)">Next <i class="bi bi-arrow-right"></i></button>
-                    </div>
+                <div>
+                    <label>Middle Name (Optional)</label>
+                    <input type="text" name="m_name" value="<?=htmlspecialchars($_POST['m_name'] ?? '')?>" pattern="[a-zA-Z\s\'-]*">
                 </div>
-
-                <!-- Step 3: Identity -->
-                <div class="step d-none" id="step3">
-                    <div class="step-header">
-
-                        <h3>Who are you?</h3>
-                        <p>Tell us your name.</p>
-                    </div>
-                    <div class="form-group">
-                        <label>First Name</label>
-                        <input type="text" name="f_name" value="<?=htmlspecialchars($_POST['f_name'] ?? '')?>" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Middle Name <span class="text-muted">(Optional)</span></label>
-                        <input type="text" name="m_name" value="<?=htmlspecialchars($_POST['m_name'] ?? '')?>">
-                    </div>
-                    <div class="form-group">
-                        <label>Last Name</label>
-                        <input type="text" name="l_name" value="<?=htmlspecialchars($_POST['l_name'] ?? '')?>" required>
-                    </div>
-                    <div class="buttons-row">
-                        <button type="button" class="btn btn-secondary btn-prev" onclick="prevStep(3)">Back</button>
-                        <button type="button" class="btn btn-primary btn-next" onclick="nextStep(3)">Next <i class="bi bi-arrow-right"></i></button>
-                    </div>
+                <div>
+                    <label>Last Name</label>
+                    <input type="text" name="l_name" value="<?=htmlspecialchars($_POST['l_name'] ?? '')?>" required pattern="[a-zA-Z\s\'-]{2,}">
                 </div>
-
-                <!-- Step 4: Personal -->
-                <div class="step d-none" id="step4">
-                    <div class="step-header">
-            
-                        <h3>Final Details</h3>
-                        <p>A bit more about you.</p>
-                    </div>
-                    <div class="form-group">
+                
+                <div style="display:flex; gap: 1rem;">
+                    <div style="flex:1;">
                         <label>Gender</label>
-                        <select name="gender" class="form-control form-select" required>
-                            <option value="">Select Gender</option>
+                        <select name="gender" class="form-control" style="width:100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 6px;" required>
+                            <option value="">Select</option>
                             <option value="Male" <?= (($_POST['gender'] ?? '') === 'Male') ? 'selected' : '' ?>>Male</option>
                             <option value="Female" <?= (($_POST['gender'] ?? '') === 'Female') ? 'selected' : '' ?>>Female</option>
                             <option value="Other" <?= (($_POST['gender'] ?? '') === 'Other') ? 'selected' : '' ?>>Other</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label>Birthdate</label>
-                        <input type="text" name="birthdate" id="birthdateInput" placeholder="Select your birthdate" value="<?=htmlspecialchars($_POST['birthdate'] ?? '')?>" required readonly>
-                    </div>
-                    <div class="buttons-row">
-                        <button type="button" class="btn btn-secondary btn-prev" onclick="prevStep(4)">Back</button>
-                        <button type="submit" class="btn btn-success btn-submit">Create Account <i class="bi bi-check-lg"></i></button>
+                    <div style="flex:1;">
+                        <label>Age</label>
+                        <input type="number" name="age" value="<?=htmlspecialchars($_POST['age'] ?? '')?>" min="13" max="150" required>
                     </div>
                 </div>
+
+                <div>
+                    <label>Email Address</label>
+                    <input type="email" name="email" value="<?=htmlspecialchars($email)?>" required>
+                </div>
+
+                <div>
+                    <label>Username (3-20 characters)</label>
+                    <input type="text" name="username" value="<?=htmlspecialchars($username)?>" required minlength="3" maxlength="20" pattern="[a-zA-Z0-9_\-]+">
+                    <small style="color: grey; font-size: 0.8rem;">Letters, numbers, underscores, and hyphens only.</small>
+                </div>
+                <div>
+                    <label>Password</label>
+                    <input type="password" name="password" required minlength="8">
+                    <small style="color: grey; font-size: 0.8rem;">
+                        Min 8 chars • 1 uppercase • 1 number • 1 special character (!@#$%^&*-_)
+                    </small>
+                </div>
+                
+                <button type="submit" class="btn" style="width: 100%; margin-top: 1rem;">Sign Up</button>
             </form>
-            <p class="auth-link">
+            <p style="text-align: center; margin-top: 1.5rem;">
                 <a href="login.php">Back to login</a>
             </p>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="../scripts/signup_wizard.js"></script>
-    <script>
-        flatpickr('#birthdateInput', {
-            dateFormat: 'Y-m-d',
-            altInput: true,
-            altFormat: 'F j, Y',
-            maxDate: 'today',
-            defaultDate: document.getElementById('birthdateInput').value || null,
-            disableMobile: true
-        });
-    </script>
 </body>
 </html>
