@@ -49,10 +49,7 @@ body {
     flex-direction: column;
     padding: 2rem 1rem;
     background-color: #F595A6;
-    background-image: url('../images/sanrio-pochacco-5120x2880-14774.png');
-    background-repeat: no-repeat;
-    background-position: center bottom;
-    background-size: 600px auto;
+
     --primary: #be123c;
     --primary-hover: #9f1239;
 }

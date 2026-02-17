@@ -116,6 +116,18 @@ require __DIR__ . '/includes/header.php';
 
                     <!-- Message Input -->
                     <div class="chat-input-area d-none" id="chatInputArea">
+                        <!-- Reply Preview -->
+                        <div id="replyPreview" class="reply-preview d-none">
+                            <div class="d-flex align-items-center gap-2 overflow-hidden">
+                                <i class="bi bi-reply-fill text-primary"></i>
+                                <div class="text-truncate">
+                                    <span class="fw-bold small" id="replyName">User</span>
+                                    <div class="small text-muted text-truncate" id="replyContent">Message content...</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-sm p-0 ms-2" id="cancelReplyBtn"><i class="bi bi-x-lg"></i></button>
+                        </div>
+
                         <div class="d-flex gap-2 align-items-end">
                             <textarea class="form-control resize-none" id="messageInput" rows="1" placeholder="Type a message..."></textarea>
                             <button class="btn btn-primary rounded-circle btn-circle-42" id="sendMessageBtn">

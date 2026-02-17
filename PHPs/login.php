@@ -73,19 +73,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 /* ── View ─────────────────────────────────────────── */
 $pageTitle = 'Login - SQL Explore';
-$pageCss   = ['login.css'];
+$pageCss   = ['auth_shared.css', 'login.css'];
 $bodyClass = 'body-login';
 require __DIR__ . '/includes/header.php';
-?>
 
-    <main class="login-wrapper">
-        <div class="login-card">
-            <!-- Left Side: Form -->
-            <div class="login-left">
-                <div class="login-header">
-                    <div class="logo-placeholder">Sanchez E.</div>
-                    <h1 class="welcome-text">Hello,<br>welcome!</h1>
-                </div>
+// Branding / Heading
+$welcomeText = 'Hello,<br>welcome!';
+require __DIR__ . '/includes/auth_header.php';
+?>
 
                 <?php if ($message): ?>
                     <div class="alert alert-danger py-2 fs-6" role="alert"><?= htmlspecialchars($message) ?></div>
@@ -122,23 +117,12 @@ require __DIR__ . '/includes/header.php';
                         <a href="signup.php" class="btn btn-signup">Sign up</a>
                     </div>
 
-                    <div class="login-footer mt-5">
-                        <span class="small text-muted me-3">FOLLOW ME</span>
-                        <a href="https://facebook.com/emman.sanchez.790" class="social-icon" target="_blank" rel="noopener noreferrer"><i class="bi bi-facebook"></i></a>
-                        <a href="https://github.com/KowaiiRuju" class="social-icon" target="_blank" rel="noopener noreferrer"><i class="bi bi-github"></i></a>
-                        <a href="https://www.instagram.com/ruju.pi" class="social-icon" target="_blank" rel="noopener noreferrer"><i class="bi bi-instagram"></i></a>
-                    </div>
+                    <?php require __DIR__ . '/includes/social_links.php'; ?>
                 </form>
-            </div>
 
-            <!-- Right Side: Graphic -->
-            <div class="login-right">
-                <!-- Image handles background -->
-            </div>
-        </div>
-    </main>
+<?php 
+require __DIR__ . '/includes/auth_footer.php';
 
-<?php
 $pageScripts = [];
 require __DIR__ . '/includes/footer.php';
 ?>

@@ -385,3 +385,158 @@
 .max-h-300 {
     max-height: 300px;
 }
+
+/* ── Advanced Messaging Features ── */
+
+/* Replies */
+.reply-preview {
+    background: #f1f5f9;
+    border-left: 3px solid #6c5ce7;
+    padding: 8px 12px;
+    border-radius: 8px 8px 0 0;
+    margin-bottom: -1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+}
+
+.message-reply-bubble {
+    background: rgba(0, 0, 0, 0.05);
+    border-left: 2px solid rgba(0, 0, 0, 0.2);
+    padding: 4px 10px;
+    margin-bottom: 6px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    color: inherit;
+    opacity: 0.8;
+}
+
+.mine .message-reply-bubble {
+    background: rgba(255, 255, 255, 0.15);
+    border-left-color: rgba(255, 255, 255, 0.4);
+}
+
+/* Reactions */
+.message-reactions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.reaction-badge {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1px 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.reaction-badge:hover {
+    border-color: #6c5ce7;
+    background: #f8fafc;
+}
+
+.reaction-badge.mine {
+    background: #eef2ff;
+    border-color: #6c5ce7;
+}
+
+/* Message Actions (Hover Menu) */
+.message-row {
+    position: relative;
+}
+
+.message-actions {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    background: #fff;
+    padding: 4px;
+    border-radius: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.message-row:hover .message-actions {
+    opacity: 1;
+}
+
+.message-row.mine .message-actions {
+    right: 100%;
+    margin-right: 8px;
+}
+
+.message-row.theirs .message-actions {
+    left: 100%;
+    margin-left: 8px;
+}
+
+.btn-action {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 0.85rem;
+}
+
+.btn-action:hover {
+    background: #f1f5f9;
+    color: #6c5ce7;
+}
+
+/* Emoji Picker Quick List */
+.emoji-picker-mini {
+    position: absolute;
+    bottom: 100%;
+    background: #fff;
+    border-radius: 24px;
+    padding: 6px;
+    display: flex;
+    gap: 4px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    z-index: 100;
+    animation: popIn 0.2s ease-out;
+}
+
+@keyframes popIn {
+    from {
+        transform: scale(0.8) translateY(10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1) translateY(0);
+        opacity: 1;
+    }
+}
+
+.emoji-option {
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px;
+    border-radius: 50%;
+    transition: background 0.2s;
+    line-height: 1;
+}
+
+.emoji-option:hover {
+    background: #f1f5f9;
+}

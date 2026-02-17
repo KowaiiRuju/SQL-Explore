@@ -1,7 +1,3 @@
-/**
- * messages.js — Handles real-time messaging: conversations list, chat view, sending, and polling.
- */
-
 const MSG_API = 'api/messages.php';
 const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
 
@@ -11,6 +7,7 @@ function appendCsrf(formData) {
 
 let activeConversationUserId = null;
 let pollInterval = null;
+let replyingToId = null;
 
 /* ── Init ──────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
@@ -27,6 +24,45 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Cancel Reply
+    document.getElementById('cancelReplyBtn')?.addEventListener('click', cancelReply);
+
+    // Message List Delegation (Actions)
+    document.getElementById('chatMessages').addEventListener('click', (e) => {
+        const replyBtn = e.target.closest('.btn-reply');
+        if (replyBtn) {
+            const row = replyBtn.closest('.message-row');
+            const id = row.dataset.id;
+            const name = row.dataset.name;
+            const content = row.querySelector('.message-body').textContent;
+            setReply(id, name, content);
+            return;
+        }
+
+        const deleteBtn = e.target.closest('.btn-delete-msg');
+        if (deleteBtn) {
+            const id = deleteBtn.closest('.message-row').dataset.id;
+            const isMine = deleteBtn.closest('.message-row').classList.contains('mine');
+            showDeleteOptions(id, isMine);
+            return;
+        }
+
+        const reactBtn = e.target.closest('.btn-react');
+        if (reactBtn) {
+            const id = reactBtn.closest('.message-row').dataset.id;
+            showEmojiPicker(id, reactBtn);
+            return;
+        }
+
+        const reactionBadge = e.target.closest('.reaction-badge');
+        if (reactionBadge) {
+            const id = reactionBadge.closest('.message-row').dataset.id;
+            const emoji = reactionBadge.dataset.emoji;
+            toggleReaction(id, emoji);
+            return;
+        }
+    });
+
     // Check URL to highlight current chat if needed (e.g. ?user=123)
     const urlParams = new URLSearchParams(window.location.search);
     const initialUser = urlParams.get('user');
@@ -37,7 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mobile: Move actions to navbar
     // Mobile: Move actions to navbar
     const mobileActions = document.getElementById('mobileActionsTemplate');
     const navbarActions = document.getElementById('mobileNavbarActions');
@@ -267,6 +302,7 @@ async function loadConversations(silent = false) {
 /* ── Open Conversation ─────────────────────────── */
 function openConversation(userId, name, username, profilePic) {
     activeConversationUserId = userId;
+    cancelReply();
 
     // Update header
     document.getElementById('chatHeader').classList.remove('d-none');
@@ -306,15 +342,45 @@ async function loadMessages(userId, silent = false) {
         const wasAtBottom = container.scrollTop + container.clientHeight >= container.scrollHeight - 50;
         const previousCount = container.querySelectorAll('.message-bubble').length;
 
-        // Only update if message count changed or not silent
-        if (silent && data.messages.length === previousCount) return;
+        // Simple check to see if we should re-render (count or content might change due to reactions/deletions)
+        const currentDataHash = JSON.stringify(data.messages);
+        if (silent && container.dataset.hash === currentDataHash) return;
+        container.dataset.hash = currentDataHash;
 
         container.innerHTML = data.messages.map(m => `
-            <div class="message-row ${m.is_mine ? 'mine' : 'theirs'}">
+            <div class="message-row ${m.is_mine ? 'mine' : 'theirs'}" 
+                 data-id="${m.id}" 
+                 data-name="${escapeHtml(m.name)}">
+                
                 ${!m.is_mine ? avatarHtml(m.profile_pic, m.name, 32) : ''}
+                
                 <div class="message-bubble ${m.is_mine ? 'mine' : 'theirs'}">
-                    <p class="mb-0">${escapeHtml(m.content)}</p>
+                    ${m.reply_to ? `
+                        <div class="message-reply-bubble">
+                            <small class="fw-bold d-block">@${escapeHtml(m.reply_to.username)}</small>
+                            <div class="text-truncate">${escapeHtml(m.reply_to.content)}</div>
+                        </div>
+                    ` : ''}
+                    
+                    <p class="mb-0 message-body">${escapeHtml(m.content)}</p>
                     <small class="message-time">${formatTime(m.created_at)}</small>
+                    
+                    ${m.reactions && m.reactions.length > 0 ? `
+                        <div class="message-reactions">
+                            ${m.reactions.map(r => `
+                                <span class="reaction-badge ${r.is_mine ? 'mine' : ''}" data-emoji="${escapeHtml(r.emoji)}">
+                                    ${escapeHtml(r.emoji)}
+                                </span>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+
+                <!-- Hover Actions -->
+                <div class="message-actions">
+                    <button class="btn-action btn-react" title="React"><i class="bi bi-emoji-smile"></i></button>
+                    <button class="btn-action btn-reply" title="Reply"><i class="bi bi-reply"></i></button>
+                    <button class="btn-action btn-delete-msg" title="Delete"><i class="bi bi-trash"></i></button>
                 </div>
             </div>
         `).join('');
@@ -334,6 +400,9 @@ async function sendMessage() {
     const content = input.value.trim();
     if (!content || !activeConversationUserId) return;
 
+    const currentReplyId = replyingToId;
+    cancelReply(); // Reset UI immediately
+
     input.value = '';
     input.style.height = 'auto';
 
@@ -342,30 +411,129 @@ async function sendMessage() {
         formData.append('action', 'send_message');
         formData.append('receiver_id', activeConversationUserId);
         formData.append('content', content);
+        if (currentReplyId) formData.append('reply_to_id', currentReplyId);
         appendCsrf(formData);
 
         const res = await fetch(MSG_API, { method: 'POST', body: formData });
         const data = await res.json();
 
         if (data.success) {
-            // Append message immediately
-            const container = document.getElementById('chatMessages');
-            const div = document.createElement('div');
-            div.className = 'message-row mine';
-            div.innerHTML = `
-                <div class="message-bubble mine">
-                    <p class="mb-0">${escapeHtml(content)}</p>
-                    <small class="message-time">Just now</small>
-                </div>
-            `;
-            container.appendChild(div);
-            container.scrollTop = container.scrollHeight;
-
-            // Refresh conversation list
+            // Load all messages for freshness (reactions, replies, etc.)
+            loadMessages(activeConversationUserId);
             loadConversations(true);
         }
     } catch (err) {
         console.error('Send message error:', err);
+    }
+}
+
+/* ── Replies ───────────────────────────────────── */
+function setReply(messageId, name, content) {
+    replyingToId = messageId;
+    document.getElementById('replyName').textContent = name;
+    document.getElementById('replyContent').textContent = content;
+    document.getElementById('replyPreview').classList.remove('d-none');
+    document.getElementById('messageInput').focus();
+}
+
+function cancelReply() {
+    replyingToId = null;
+    document.getElementById('replyPreview').classList.add('d-none');
+}
+
+/* ── Reactions ─────────────────────────────────── */
+async function toggleReaction(messageId, emoji) {
+    try {
+        const formData = new FormData();
+        // Determine if adding or removing (optimistic check)
+        const row = document.querySelector(`.message-row[data-id="${messageId}"]`);
+        const existing = row?.querySelector(`.reaction-badge.mine[data-emoji="${emoji}"]`);
+
+        formData.append('action', existing ? 'remove_reaction' : 'add_reaction');
+        formData.append('message_id', messageId);
+        formData.append('emoji', emoji);
+        appendCsrf(formData);
+
+        const res = await fetch(MSG_API, { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+            loadMessages(activeConversationUserId, true);
+        }
+    } catch (err) {
+        console.error('Reaction error:', err);
+    }
+}
+
+function showEmojiPicker(messageId, btn) {
+    // Remove any existing pickers
+    document.querySelectorAll('.emoji-picker-mini').forEach(p => p.remove());
+
+    const picker = document.createElement('div');
+    picker.className = 'emoji-picker-mini';
+    const emojis = ['❤️', '😂', '😮', '😢', '🔥', '👍'];
+
+    picker.innerHTML = emojis.map(e => `<span class="emoji-option" data-emoji="${e}">${e}</span>`).join('');
+
+    document.body.appendChild(picker);
+
+    // Position picker
+    const rect = btn.getBoundingClientRect();
+    picker.style.top = (rect.top + window.scrollY - picker.offsetHeight - 10) + 'px';
+    picker.style.left = (rect.left + window.scrollX - (picker.offsetWidth / 2) + 14) + 'px';
+
+    picker.onclick = (e) => {
+        const option = e.target.closest('.emoji-option');
+        if (option) {
+            toggleReaction(messageId, option.dataset.emoji);
+            picker.remove();
+        }
+    };
+
+    // Close on click outside
+    const closePicker = (e) => {
+        if (!picker.contains(e.target) && e.target !== btn) {
+            picker.remove();
+            document.removeEventListener('click', closePicker);
+        }
+    };
+    setTimeout(() => document.addEventListener('click', closePicker), 10);
+}
+
+/* ── Deletions ─────────────────────────────────── */
+function showDeleteOptions(messageId, isMine) {
+    if (!isMine) {
+        if (confirm('Delete this message for you?')) {
+            deleteMessage(messageId, 'me');
+        }
+        return;
+    }
+
+    // Custom prompt for mine
+    const choice = prompt('Type "me" to delete for you, or "everyone" to delete for both:', 'me');
+    if (choice === 'me' || choice === 'everyone') {
+        deleteMessage(messageId, choice);
+    }
+}
+
+async function deleteMessage(messageId, type) {
+    try {
+        const formData = new FormData();
+        formData.append('action', 'delete_message');
+        formData.append('message_id', messageId);
+        formData.append('type', type);
+        appendCsrf(formData);
+
+        const res = await fetch(MSG_API, { method: 'POST', body: formData });
+        const data = await res.json();
+
+        if (data.success) {
+            loadMessages(activeConversationUserId, true);
+        } else {
+            alert(data.error);
+        }
+    } catch (err) {
+        console.error('Delete error:', err);
     }
 }
 

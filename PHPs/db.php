@@ -126,9 +126,39 @@ function ensure_setup() {
         receiver_id INT NOT NULL,
         content TEXT NOT NULL,
         is_read TINYINT(1) DEFAULT 0,
+        deleted_by_sender TINYINT(1) DEFAULT 0,
+        deleted_by_receiver TINYINT(1) DEFAULT 0,
+        reply_to_id INT DEFAULT NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         INDEX idx_conversation (sender_id, receiver_id),
         INDEX idx_unread (receiver_id, is_read)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
+
+    // Add missing columns to messages if table existed
+    $msgDesiredColumns = [
+        'deleted_by_sender'   => 'TINYINT(1) DEFAULT 0',
+        'deleted_by_receiver' => 'TINYINT(1) DEFAULT 0',
+        'reply_to_id'         => 'INT DEFAULT NULL'
+    ];
+    $stmt = $pdo->query("SHOW COLUMNS FROM messages");
+    $existingMsgColumns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+    foreach ($msgDesiredColumns as $col => $def) {
+        if (!in_array($col, $existingMsgColumns)) {
+            $pdo->exec("ALTER TABLE `messages` ADD COLUMN `$col` $def");
+        }
+    }
+
+    // Message reactions table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS message_reactions (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        message_id INT NOT NULL,
+        user_id INT NOT NULL,
+        emoji VARCHAR(10) NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE KEY unique_reaction (message_id, user_id, emoji),
+        FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
     // Friendships table

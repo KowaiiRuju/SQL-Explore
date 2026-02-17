@@ -1,45 +1,43 @@
-/* ===== Signup Wizard Styles ===== */
+/* Signup Page Specific Styles */
+/* Shared layout and components are in auth_shared.css */
 
-/* Widen the signup card to prevent cramped fields */
-.body-signup .auth-container {
-    max-width: 480px;
+.body-signup.body-login {
+    background-color: #f595a6 !important;
 }
 
-.body-signup .card {
-    border: none;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12);
-    border-radius: 16px;
-    padding: 2.5rem 2.5rem 2rem;
-    overflow: hidden;
-    background: #fff;
-    min-height: 440px;
-    display: flex;
-    flex-direction: column;
+.body-signup .login-card {
+    min-height: 600px;
+    /* Slightly taller for signup steps */
 }
 
-/* Hide old title — each step has its own header */
-.signup-title {
-    display: none;
+.body-signup .login-right {
+    background: #f595a6 url('../images/sanrio-pochacco-5120x2880-14774.png') no-repeat center center/cover !important;
 }
 
-/* ---------- Step header ---------- */
-.step-header {
-    text-align: center;
-    margin-bottom: 1.75rem;
-    animation: fadeIn 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+/* Hide the abstract shapes used on login page */
+.body-signup .login-right::before,
+.body-signup .login-right::after,
+.body-signup .graphic-circle,
+.body-signup .graphic-overlay {
+    display: none !important;
 }
 
-.step-header h3 {
-    font-weight: 700;
-    font-size: 1.35rem;
-    margin-bottom: 0.35rem;
-    color: #1a1a1a;
+.body-signup .welcome-text {
+    color: #f595a6;
 }
 
-.step-header p {
-    color: var(--text-muted);
-    font-size: var(--input-font);
-    margin-bottom: 0;
+.body-signup .btn-login {
+    background: linear-gradient(to right, #f595a6, #d946ef);
+}
+
+.body-signup .btn-signup {
+    border-color: #f595a6;
+    color: #f595a6;
+}
+
+.body-signup .btn-signup:hover {
+    background: #f595a6;
+    color: white;
 }
 
 /* ---------- Step animation ---------- */
@@ -62,179 +60,47 @@
     }
 }
 
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(-8px);
-    }
+/* ---------- Wizard Elements ---------- */
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+.password-requirements {
+    background: #f8fafc;
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #e2e8f0;
 }
 
-/* ---------- Form groups ---------- */
-.form-group {
-    margin-bottom: 1.15rem;
-}
-
-/* ---------- Layout helpers ---------- */
-.form-row {
-    display: flex;
-    gap: 1rem;
-}
-
-.form-col {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* ---------- Hints & feedback ---------- */
-.form-hint {
-    color: #9ca3af;
+.password-requirements i {
     font-size: 0.8rem;
-    margin-top: 0.35rem;
-    display: block;
+    margin-right: 5px;
 }
 
-.text-muted {
-    color: #9ca3af;
-    font-weight: 400;
+.password-requirements li.valid {
+    color: #10b981 !important;
 }
 
-.validation-feedback {
-    font-size: 0.85rem;
-    margin-top: 0.4rem;
-    min-height: 1.2rem;
-}
-
-.text-success {
-    color: #10b981;
-}
-
-.text-danger {
-    color: #ef4444;
-}
-
-/* ---------- Buttons ---------- */
-.buttons-row {
-    display: flex;
-    gap: 0.75rem;
-    margin-top: auto;
-    padding-top: 1.5rem;
-}
-
-.buttons-row .btn-prev {
-    flex: 0 0 auto;
-}
-
-.buttons-row .btn-next,
-.buttons-row .btn-submit {
-    flex: 1;
-}
-
-.body-signup .btn-success {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: #fff;
-}
-
-.body-signup .btn-success:hover {
-    background: linear-gradient(135deg, #059669, #047857);
-}
-
-.btn-full {
-    width: 100%;
-    margin-top: auto;
-}
-
-/* ---------- Auth link ---------- */
-.auth-link {
-    text-align: center;
-    margin-top: 1.25rem;
-    font-size: var(--input-font);
-}
-
-/* ---------- Validation ---------- */
-.body-signup input.is-valid {
-    border-color: #10b981;
-}
-
-.body-signup input.is-invalid {
-    border-color: #ef4444;
-}
-
-/* ---------- Responsive ---------- */
-@media (max-width: 520px) {
-    .body-signup .auth-container {
-        max-width: 100%;
-        padding: 0 1rem;
-    }
-
-    .body-signup .card {
-        padding: 1.75rem 1.5rem;
-    }
-
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-}
-
-/* ---------- Flatpickr theme ---------- */
-.flatpickr-calendar {
-    border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+.password-requirements li.valid i::before {
+    content: "\f26a";
     font-family: inherit;
 }
 
-.flatpickr-day.selected,
-.flatpickr-day.selected:hover {
-    background: var(--primary);
-    border-color: var(--primary);
+/* Custom styles for the date input to match stylish-input styling */
+input[type="date"].stylish-input {
+    appearance: none;
+    -webkit-appearance: none;
+    color: #333;
 }
 
-.flatpickr-day:hover {
-    background: #fce7ec;
-}
-
-.flatpickr-months .flatpickr-month,
-.flatpickr-current-month .flatpickr-monthDropdown-months,
-span.flatpickr-weekday {
-    color: #374151;
-    font-weight: 600;
-}
-
-.body-signup input[readonly] {
-    background: #fff;
+/* Ensure select matches stylish-input */
+select.stylish-input {
+    border: none;
+    border-bottom: 1px solid #ddd;
+    border-radius: 0;
+    padding: 12px 0;
+    background: transparent;
     cursor: pointer;
 }
 
-/* ── Refactored Inline Styles ── */
-.signup-h2 {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.signup-select {
-    width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #dee2e6;
-    border-radius: 6px;
-}
-
-.text-muted-sm {
-    color: grey;
-    font-size: 0.8rem;
-}
-
-.btn-submit-signup {
-    width: 100%;
-    margin-top: 1rem;
-}
-
-.text-center-mt {
-    text-align: center;
-    margin-top: 1.5rem;
+select.stylish-input:focus {
+    border-color: #22d3ee;
+    box-shadow: none;
 }

@@ -101,18 +101,49 @@ try {
                 ->execute([':other' => $otherId, ':me' => $myId]);
 
             // Fetch conversation
+            // Filter: (sender = me AND deleted_by_sender = 0) OR (receiver = me AND deleted_by_receiver = 0)
             $stmt = $pdo->prepare("
-                SELECT m.*, u.username, u.f_name, u.l_name, u.profile_pic
+                SELECT m.*, u.username, u.f_name, u.l_name, u.profile_pic,
+                       r.content as reply_content, ru.username as reply_username
                 FROM messages m
                 JOIN users u ON m.sender_id = u.id
-                WHERE (m.sender_id = :me AND m.receiver_id = :other)
-                   OR (m.sender_id = :other2 AND m.receiver_id = :me2)
+                LEFT JOIN messages r ON m.reply_to_id = r.id
+                LEFT JOIN users ru ON r.sender_id = ru.id
+                WHERE (
+                    (m.sender_id = :me AND m.receiver_id = :other AND m.deleted_by_sender = 0)
+                    OR 
+                    (m.sender_id = :other2 AND m.receiver_id = :me2 AND m.deleted_by_receiver = 0)
+                )
                 ORDER BY m.created_at ASC
             ");
             $stmt->execute([':me' => $myId, ':other' => $otherId, ':other2' => $otherId, ':me2' => $myId]);
             $messages = $stmt->fetchAll();
 
-            $result = array_map(function($m) use ($currentUser) {
+            // Fetch reactions for these messages
+            $messageIds = array_column($messages, 'id');
+            $reactionsByMessage = [];
+            if (!empty($messageIds)) {
+                $placeholders = implode(',', array_fill(0, count($messageIds), '?'));
+                $rStmt = $pdo->prepare("
+                    SELECT mr.*, u.username 
+                    FROM message_reactions mr
+                    JOIN users u ON mr.user_id = u.id
+                    WHERE mr.message_id IN ($placeholders)
+                ");
+                $rStmt->execute($messageIds);
+                $allReactions = $rStmt->fetchAll();
+                
+                foreach ($allReactions as $re) {
+                    $reactionsByMessage[$re['message_id']][] = [
+                        'emoji' => $re['emoji'],
+                        'user_id' => (int)$re['user_id'],
+                        'username' => $re['username'],
+                        'is_mine' => (int)$re['user_id'] === $myId
+                    ];
+                }
+            }
+
+            $result = array_map(function($m) use ($currentUser, $reactionsByMessage) {
                 return [
                     'id'          => (int)$m['id'],
                     'sender_id'   => (int)$m['sender_id'],
@@ -121,38 +152,139 @@ try {
                     'name'        => trim(($m['f_name'] ?? '') . ' ' . ($m['l_name'] ?? '')) ?: $m['username'],
                     'profile_pic' => $m['profile_pic'] ?? '',
                     'created_at'  => $m['created_at'],
+                    'reply_to'    => $m['reply_to_id'] ? [
+                        'id'       => (int)$m['reply_to_id'],
+                        'content'  => $m['reply_content'],
+                        'username' => $m['reply_username']
+                    ] : null,
+                    'reactions'   => $reactionsByMessage[$m['id']] ?? []
                 ];
             }, $messages);
 
             echo json_encode(['success' => true, 'messages' => $result]);
             break;
 
+
         /* ── Send Message ────────────────────────── */
         case 'send_message':
             $receiverId = (int)($_POST['receiver_id'] ?? 0);
             $content    = trim($_POST['content'] ?? '');
+            $replyTo    = (int)($_POST['reply_to_id'] ?? 0) ?: null;
 
             if (!$receiverId || $content === '') {
                 echo json_encode(['error' => 'Receiver and content are required']);
                 exit;
             }
 
-            $stmt = $pdo->prepare('INSERT INTO messages (sender_id, receiver_id, content) VALUES (:sid, :rid, :c)');
-            $stmt->execute([':sid' => $currentUser['id'], ':rid' => $receiverId, ':c' => $content]);
+            $stmt = $pdo->prepare('INSERT INTO messages (sender_id, receiver_id, content, reply_to_id) VALUES (:sid, :rid, :c, :rt)');
+            $stmt->execute([':sid' => $currentUser['id'], ':rid' => $receiverId, ':c' => $content, ':rt' => $replyTo]);
+            $newId = (int)$pdo->lastInsertId();
+
+            $replyInfo = null;
+            if ($replyTo) {
+                $rStmt = $pdo->prepare("SELECT m.content, u.username FROM messages m JOIN users u ON m.sender_id = u.id WHERE m.id = ?");
+                $rStmt->execute([$replyTo]);
+                $replyInfo = $rStmt->fetch();
+            }
 
             echo json_encode([
                 'success' => true,
                 'message' => [
-                    'id'         => (int)$pdo->lastInsertId(),
-                    'sender_id'  => (int)$currentUser['id'],
-                    'content'    => $content,
-                    'is_mine'    => true,
-                    'name'       => trim(($currentUser['f_name'] ?? '') . ' ' . ($currentUser['l_name'] ?? '')) ?: $currentUser['username'],
-                    'profile_pic'=> $currentUser['profile_pic'] ?? '',
-                    'created_at' => date('Y-m-d H:i:s'),
+                    'id'          => $newId,
+                    'sender_id'   => (int)$currentUser['id'],
+                    'content'     => $content,
+                    'is_mine'     => true,
+                    'name'        => trim(($currentUser['f_name'] ?? '') . ' ' . ($currentUser['l_name'] ?? '')) ?: $currentUser['username'],
+                    'profile_pic' => $currentUser['profile_pic'] ?? '',
+                    'created_at'  => date('Y-m-d H:i:s'),
+                    'reply_to'    => $replyInfo ? [
+                        'id'       => $replyTo,
+                        'content'  => $replyInfo['content'],
+                        'username' => $replyInfo['username']
+                    ] : null,
+                    'reactions'   => []
                 ]
             ]);
             break;
+
+        /* ── Delete Message ──────────────────────── */
+        case 'delete_message':
+            $messageId = (int)($_POST['message_id'] ?? 0);
+            $type      = $_POST['type'] ?? 'me'; // 'me' or 'everyone'
+
+            if (!$messageId) {
+                echo json_encode(['error' => 'Invalid message ID']);
+                exit;
+            }
+
+            // Check if message belongs to user or user is receiver
+            $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
+            $stmt->execute([$messageId]);
+            $msg = $stmt->fetch();
+
+            if (!$msg) {
+                echo json_encode(['error' => 'Message not found']);
+                exit;
+            }
+
+            $myId = $currentUser['id'];
+
+            if ($type === 'everyone') {
+                // Only sender can delete for everyone
+                if ((int)$msg['sender_id'] !== $myId) {
+                    echo json_encode(['error' => 'Only the sender can delete for everyone']);
+                    exit;
+                }
+                $pdo->prepare("DELETE FROM messages WHERE id = ?")->execute([$messageId]);
+            } else {
+                // Delete for me
+                if ((int)$msg['sender_id'] === $myId) {
+                    $pdo->prepare("UPDATE messages SET deleted_by_sender = 1 WHERE id = ?")->execute([$messageId]);
+                } elseif ((int)$msg['receiver_id'] === $myId) {
+                    $pdo->prepare("UPDATE messages SET deleted_by_receiver = 1 WHERE id = ?")->execute([$messageId]);
+                } else {
+                    echo json_encode(['error' => 'Unauthorized']);
+                    exit;
+                }
+            }
+
+            echo json_encode(['success' => true]);
+            break;
+
+        /* ── Add Reaction ────────────────────────── */
+        case 'add_reaction':
+            $messageId = (int)($_POST['message_id'] ?? 0);
+            $emoji     = trim($_POST['emoji'] ?? '');
+
+            if (!$messageId || !$emoji) {
+                echo json_encode(['error' => 'Invalid data']);
+                exit;
+            }
+
+            try {
+                $stmt = $pdo->prepare("INSERT INTO message_reactions (message_id, user_id, emoji) VALUES (?, ?, ?)");
+                $stmt->execute([$messageId, $currentUser['id'], $emoji]);
+                echo json_encode(['success' => true]);
+            } catch (PDOException $e) {
+                echo json_encode(['success' => true, 'already_set' => true]);
+            }
+            break;
+
+        /* ── Remove Reaction ─────────────────────── */
+        case 'remove_reaction':
+            $messageId = (int)($_POST['message_id'] ?? 0);
+            $emoji     = trim($_POST['emoji'] ?? '');
+
+            if (!$messageId || !$emoji) {
+                echo json_encode(['error' => 'Invalid data']);
+                exit;
+            }
+
+            $stmt = $pdo->prepare("DELETE FROM message_reactions WHERE message_id = ? AND user_id = ? AND emoji = ?");
+            $stmt->execute([$messageId, $currentUser['id'], $emoji]);
+            echo json_encode(['success' => true]);
+            break;
+
 
         /* ── Search Users (for new conversation) ─── */
         case 'search_users':
@@ -209,6 +341,7 @@ try {
 
             echo json_encode(['success' => true, 'message' => 'Conversation deleted']);
             break;
+
 
         default:
             echo json_encode(['error' => 'Unknown action']);
