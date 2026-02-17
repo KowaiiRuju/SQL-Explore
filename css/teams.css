@@ -1,0 +1,28 @@
+/* Teams Page Styles */
+
+.fs-xs {
+    font-size: 0.65rem;
+}
+
+.team-member-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+}
+
+.team-logo-upload {
+    width: 80px;
+    height: 80px;
+    cursor: pointer;
+}
+
+.team-logo-preview {
+    width: 80px;
+    height: 80px;
+    background: #f8f9fa;
+}
+
+.max-h-300-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+}

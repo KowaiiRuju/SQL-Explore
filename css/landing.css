@@ -125,3 +125,12 @@
 }
 
 /* Can add new minimal decorations if needed, but "white background" is requested */
+
+.logo-square {
+    width: 24px;
+    height: 24px;
+}
+
+.pointer-events-none {
+    pointer-events: none;
+}

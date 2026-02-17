@@ -121,7 +121,7 @@ foreach ($posts as $post) {
 
 /* ── View ─────────────────────────────────────────── */
 $pageTitle = 'Newsfeed - SQL Explore';
-$pageCss   = ['newsfeed.css'];
+$pageCss   = ['newsfeed.css', 'lightbox.css'];
 $bodyClass = 'body-dashboard';
 require __DIR__ . '/includes/header.php';
 
@@ -171,16 +171,16 @@ function timeAgo($datetime) {
                                 <?php csrf_field(); ?>
                                 <div class="d-flex align-items-start gap-3 mb-3">
                                     <?php if (!empty($userProfile['profile_pic'])): ?>
-                                        <img src="../uploads/<?= htmlspecialchars($userProfile['profile_pic']) ?>" class="rounded-circle" width="40" height="40" style="object-fit:cover;">
+                                        <img src="../uploads/<?= htmlspecialchars($userProfile['profile_pic']) ?>" class="rounded-circle img-cover" width="40" height="40">
                                     <?php else: ?>
-                                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" style="width:40px; height:40px; flex-shrink:0;">
+                                        <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white icon-placeholder-lg">
                                             <i class="bi bi-person-fill"></i>
                                         </div>
                                     <?php endif; ?>
                                     <div class="flex-grow-1">
                                         <div class="mb-2">
                                             <span class="fw-semibold small"><?= htmlspecialchars(trim(($userProfile['f_name'] ?? '') . ' ' . ($userProfile['l_name'] ?? ''))) ?: htmlspecialchars($userProfile['username']) ?></span>
-                                            <span class="badge bg-warning text-dark ms-1" style="font-size:0.65rem;"><i class="bi bi-shield-fill me-1"></i>Admin</span>
+                                            <span class="badge bg-warning text-dark ms-1 badge-sm"><i class="bi bi-shield-fill me-1"></i>Admin</span>
                                         </div>
                                         <textarea class="feed-input" name="post_content" rows="2" placeholder="Share something with your team..." required></textarea>
                                     </div>
@@ -188,15 +188,15 @@ function timeAgo($datetime) {
                                 <!-- Image preview -->
                                 <div id="imagePreviewContainer" class="mb-3 d-none">
                                     <div class="position-relative d-inline-block">
-                                        <img id="imagePreview" src="" class="rounded" style="max-height:200px; max-width:100%;">
-                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle" onclick="clearImagePreview()" style="width:28px; height:28px; padding:0;">
+                                        <img id="imagePreview" src="" class="rounded img-preview-lg">
+                                        <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0 m-1 rounded-circle btn-circle-xs" onclick="clearImagePreview()">
                                             <i class="bi bi-x"></i>
                                         </button>
                                     </div>
                                 </div>
                                 <div class="feed-actions">
                                     <div class="action-icons">
-                                        <label for="postImageInput" style="cursor:pointer;" title="Attach image">
+                                        <label for="postImageInput" class="cursor-pointer" title="Attach image">
                                             <i class="bi bi-image"></i>
                                         </label>
                                         <input type="file" id="postImageInput" name="post_image" accept="image/*" class="d-none" onchange="previewPostImage(this)">
@@ -212,7 +212,7 @@ function timeAgo($datetime) {
                         <!-- Posts Feed -->
                         <?php if (empty($posts)): ?>
                             <div class="post-card text-center py-5">
-                                <i class="bi bi-newspaper text-muted" style="font-size: 3rem;"></i>
+                                <i class="bi bi-newspaper text-muted icon-xxl"></i>
                                 <h5 class="mt-3 text-muted">No posts yet</h5>
                                 <p class="text-muted">
                                     <?= !empty($userProfile['is_admin']) ? 'Be the first to share something!' : 'Check back later for updates from your admin.' ?>
@@ -228,9 +228,9 @@ function timeAgo($datetime) {
                                 <div class="post-card" id="post-<?= (int)$post['id'] ?>">
                                     <div class="post-header">
                                         <?php if (!empty($post['profile_pic'])): ?>
-                                            <img src="../uploads/<?= htmlspecialchars($post['profile_pic']) ?>" class="post-avatar" alt="<?= htmlspecialchars($authorName) ?>" style="object-fit:cover;">
+                                            <img src="../uploads/<?= htmlspecialchars($post['profile_pic']) ?>" class="post-avatar img-cover" alt="<?= htmlspecialchars($authorName) ?>">
                                         <?php else: ?>
-                                            <div class="post-avatar rounded-circle bg-primary d-flex align-items-center justify-content-center text-white" style="font-size:1.2rem;">
+                                            <div class="post-avatar rounded-circle bg-primary d-flex align-items-center justify-content-center text-white icon-xl">
                                                 <i class="bi bi-person-fill"></i>
                                             </div>
                                         <?php endif; ?>
@@ -238,14 +238,14 @@ function timeAgo($datetime) {
                                             <h6>
                                                 <?= htmlspecialchars($authorName) ?>
                                                 <?php if (!empty($post['author_is_admin'])): ?>
-                                                    <span class="badge bg-warning text-dark ms-1" style="font-size:0.65rem;">Admin</span>
+                                                    <span class="badge bg-warning text-dark ms-1 badge-sm">Admin</span>
                                                 <?php endif; ?>
                                             </h6>
                                             <span class="post-meta"><?= timeAgo($post['created_at']) ?></span>
                                         </div>
                                         <?php if (!empty($userProfile['is_admin'])): ?>
                                             <div class="ms-auto">
-                                                <button class="btn btn-sm btn-danger rounded-circle" onclick="deletePost(<?= (int)$post['id'] ?>)" title="Delete post" style="width:30px; height:30px; padding:0;">
+                                                <button class="btn btn-sm btn-danger rounded-circle btn-circle-sm" onclick="deletePost(<?= (int)$post['id'] ?>)" title="Delete post">
                                                     <i class="bi bi-trash text-white"></i>
                                                 </button>
                                             </div>
@@ -258,7 +258,7 @@ function timeAgo($datetime) {
 
                                     <?php if (!empty($post['image'])): ?>
                                         <div class="post-image mt-3">
-                                            <img src="../uploads/<?= htmlspecialchars($post['image']) ?>" class="rounded w-100 clickable-image" style="max-height:400px; object-fit:cover; cursor: pointer;" alt="Post image" onclick="openLightbox(this.src)">
+                                            <img src="../uploads/<?= htmlspecialchars($post['image']) ?>" class="rounded w-100 clickable-image post-img-lg" alt="Post image">
                                         </div>
                                     <?php endif; ?>
 
@@ -277,7 +277,7 @@ function timeAgo($datetime) {
                                     </div>
 
                                     <!-- Comments Section (collapsible) -->
-                                    <div class="comments-section" id="comments-<?= (int)$post['id'] ?>" style="display:none;">
+                                    <div class="comments-section d-none" id="comments-<?= (int)$post['id'] ?>">
                                         <div class="comments-list" id="comments-list-<?= (int)$post['id'] ?>">
                                             <?php foreach ($postComments as $c): ?>
                                                 <?php $cName = trim(($c['f_name'] ?? '') . ' ' . ($c['l_name'] ?? '')) ?: $c['username']; ?>
@@ -286,7 +286,7 @@ function timeAgo($datetime) {
                                                         <img src="../uploads/<?= htmlspecialchars($c['profile_pic']) ?>" class="comment-avatar" alt="">
                                                     <?php else: ?>
                                                         <div class="comment-avatar bg-light d-flex align-items-center justify-content-center text-muted">
-                                                            <i class="bi bi-person-fill" style="font-size:0.7rem;"></i>
+                                                            <i class="bi bi-person-fill icon-sm"></i>
                                                         </div>
                                                     <?php endif; ?>
                                                     <div class="comment-body">
@@ -312,16 +312,15 @@ function timeAgo($datetime) {
                                                     <img src="../uploads/<?= htmlspecialchars($userProfile['profile_pic']) ?>" class="comment-avatar" alt="">
                                                 <?php else: ?>
                                                     <div class="comment-avatar bg-primary d-flex align-items-center justify-content-center text-white">
-                                                        <i class="bi bi-person-fill" style="font-size:0.7rem;"></i>
+                                                        <i class="bi bi-person-fill icon-sm"></i>
                                                     </div>
                                                 <?php endif; ?>
                                                 <input type="text" class="form-control form-control-sm comment-input" 
                                                        placeholder="Write a comment..."
                                                        onkeydown="if(event.key==='Enter'){event.preventDefault();submitComment(<?= (int)$post['id'] ?>, this);}">
-                                                <button class="btn btn-sm btn-primary rounded-circle" 
-                                                        onclick="submitComment(<?= (int)$post['id'] ?>, this.previousElementSibling)"
-                                                        style="width:32px; height:32px; padding:0; flex-shrink:0;">
-                                                    <i class="bi bi-send-fill" style="font-size:0.75rem;"></i>
+                                                <button class="btn btn-sm btn-primary rounded-circle btn-circle-md" 
+                                                        onclick="submitComment(<?= (int)$post['id'] ?>, this.previousElementSibling)">
+                                                    <i class="bi bi-send-fill icon-md"></i>
                                                 </button>
                                             </div>
                                         </div>
@@ -384,9 +383,9 @@ function timeAgo($datetime) {
                             <?php else: ?>
                                 <?php $rank = 1; foreach ($feedTeams as $ft): ?>
                                 <div class="team-item d-flex align-items-center mb-3">
-                                    <span class="fw-bold text-muted me-3" style="width: 20px; text-align: center;"><?= $rank++ ?></span>
+                                    <span class="fw-bold text-muted me-3 rank-indicator"><?= $rank++ ?></span>
                                     
-                                    <div class="team-icon me-3 position-relative" style="background: <?= htmlspecialchars($ft['color']) ?>; width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                                    <div class="team-icon me-3 position-relative team-icon-base" style="background: <?= htmlspecialchars($ft['color']) ?>;">
                                         <?php if (!empty($ft['logo']) && file_exists(__DIR__ . '/../uploads/' . $ft['logo'])): ?>
                                             <img src="../uploads/<?= htmlspecialchars($ft['logo']) ?>" class="w-100 h-100 object-fit-cover">
                                         <?php else: ?>
@@ -398,7 +397,7 @@ function timeAgo($datetime) {
                                         <h6 class="mb-0 fw-bold"><?= htmlspecialchars($ft['name']) ?></h6>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <small class="text-primary fw-bold"><?= (int)$ft['score'] ?> pts</small>
-                                            <small class="text-muted" style="font-size: 0.75rem;"><?= (int)$ft['member_count'] ?> mem</small>
+                                            <small class="text-muted text-xs"><?= (int)$ft['member_count'] ?> mem</small>
                                         </div>
                                     </div>
                                 </div>
@@ -425,9 +424,9 @@ function timeAgo($datetime) {
                 <div class="text-center mb-4">
                     <?php $modalPic = !empty($userProfile['profile_pic']) ? $userProfile['profile_pic'] : null; ?>
                     <?php if ($modalPic): ?>
-                        <img src="../uploads/<?= htmlspecialchars($modalPic) ?>" alt="Profile" class="rounded-circle mb-3" width="100" height="100" style="object-fit:cover; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                        <img src="../uploads/<?= htmlspecialchars($modalPic) ?>" alt="Profile" class="rounded-circle mb-3 modal-avatar-lg">
                     <?php else: ?>
-                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center" style="width:100px; height:100px; background:#6c5ce7; color:#fff; font-size:2.5rem;">
+                        <div class="rounded-circle mx-auto mb-3 d-flex align-items-center justify-content-center modal-avatar-placeholder-lg">
                             <i class="bi bi-person-fill"></i>
                         </div>
                     <?php endif; ?>
@@ -443,7 +442,7 @@ function timeAgo($datetime) {
                 <div class="border-top pt-3">
                     <?php if (!empty($userProfile['email'])): ?>
                     <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-envelope-fill text-muted me-3" style="width:20px; text-align:center;"></i>
+                        <i class="bi bi-envelope-fill text-muted me-3 icon-fixed-width"></i>
                         <div>
                             <small class="text-muted d-block">Email</small>
                             <span><?= htmlspecialchars($userProfile['email']) ?></span>
@@ -453,7 +452,7 @@ function timeAgo($datetime) {
 
                     <?php if (!empty($userProfile['gender'])): ?>
                     <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-gender-ambiguous text-muted me-3" style="width:20px; text-align:center;"></i>
+                        <i class="bi bi-gender-ambiguous text-muted me-3 icon-fixed-width"></i>
                         <div>
                             <small class="text-muted d-block">Gender</small>
                             <span><?= htmlspecialchars($userProfile['gender']) ?></span>
@@ -463,7 +462,7 @@ function timeAgo($datetime) {
 
                     <?php if (!empty($userProfile['birthdate'])): ?>
                     <div class="d-flex align-items-center mb-2">
-                        <i class="bi bi-calendar-event-fill text-muted me-3" style="width:20px; text-align:center;"></i>
+                        <i class="bi bi-calendar-event-fill text-muted me-3 icon-fixed-width"></i>
                         <div>
                             <small class="text-muted d-block">Birthday</small>
                             <span><?= htmlspecialchars(date('F j, Y', strtotime($userProfile['birthdate']))) ?></span>
@@ -483,20 +482,20 @@ function timeAgo($datetime) {
 </div>
 
 <!-- Mobile Leaderboard Offcanvas -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="leaderboardOffcanvas" aria-labelledby="leaderboardOffcanvasLabel" style="background: #ffffff;">
-  <div class="offcanvas-header border-bottom" style="background: #fff;">
+<div class="offcanvas offcanvas-start leaderboard-offcanvas-bg" tabindex="-1" id="leaderboardOffcanvas" aria-labelledby="leaderboardOffcanvasLabel">
+  <div class="offcanvas-header border-bottom leaderboard-header-bg">
     <h5 class="offcanvas-title fw-bold" id="leaderboardOffcanvasLabel"><i class="bi bi-trophy-fill text-warning me-2"></i>Leaderboard</h5>
     <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
   </div>
-  <div class="offcanvas-body" style="background: #f8f9fa;">
+  <div class="offcanvas-body leaderboard-body-bg">
         <?php if (empty($feedTeams)): ?>
             <p class="text-muted small text-center mb-0">No teams yet</p>
         <?php else: ?>
             <?php $rank = 1; foreach ($feedTeams as $ft): ?>
-            <div class="d-flex align-items-center mb-3 p-3 rounded-3 shadow-sm" style="background: #fff; border: 1px solid #e9ecef;">
-                <span class="fw-bold me-3 d-flex align-items-center justify-content-center rounded-circle" style="width: 28px; height: 28px; font-size: 0.85rem; background: <?= $rank <= 3 ? ($rank === 1 ? '#ffd700' : ($rank === 2 ? '#c0c0c0' : '#cd7f32')) : '#e9ecef' ?>; color: <?= $rank <= 3 ? '#fff' : '#6c757d' ?>;"><?= $rank++ ?></span>
+            <div class="d-flex align-items-center mb-3 p-3 rounded-3 shadow-sm leaderboard-item-bg">
+                <span class="fw-bold me-3 team-rank-badge" style="background: <?= $rank <= 3 ? ($rank === 1 ? '#ffd700' : ($rank === 2 ? '#c0c0c0' : '#cd7f32')) : '#e9ecef' ?>; color: <?= $rank <= 3 ? '#fff' : '#6c757d' ?>;"><?= $rank++ ?></span>
                 
-                <div class="me-3" style="background: <?= htmlspecialchars($ft['color']) ?>; width: 42px; height: 42px; border-radius: 10px; display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;">
+                <div class="me-3 leaderboard-team-icon" style="background: <?= htmlspecialchars($ft['color']) ?>;">
                     <?php if (!empty($ft['logo']) && file_exists(__DIR__ . '/../uploads/' . $ft['logo'])): ?>
                         <img src="../uploads/<?= htmlspecialchars($ft['logo']) ?>" class="w-100 h-100 object-fit-cover">
                     <?php else: ?>
@@ -507,7 +506,7 @@ function timeAgo($datetime) {
                 <div class="flex-grow-1">
                     <h6 class="mb-0 fw-bold text-dark"><?= htmlspecialchars($ft['name']) ?></h6>
                     <div class="d-flex justify-content-between align-items-center">
-                        <span class="text-primary fw-bold" style="font-size: 0.9rem;"><?= (int)$ft['score'] ?> pts</span>
+                        <span class="text-primary fw-bold text-sm-plus"><?= (int)$ft['score'] ?> pts</span>
                         <small class="text-secondary"><?= (int)$ft['member_count'] ?> members</small>
                     </div>
                 </div>
@@ -519,22 +518,87 @@ function timeAgo($datetime) {
 
 <!-- Image Lightbox Modal -->
 <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-xl">
-        <div class="modal-content bg-transparent border-0">
-            <div class="modal-body p-0 text-center position-relative">
-                <button type="button" class="btn-close btn-close-white position-absolute top-0 end-0 m-3" data-bs-dismiss="modal" aria-label="Close"></button>
-                <img id="lightboxImage" src="" class="img-fluid rounded shadow-lg" style="max-height: 90vh;">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header">
+                
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0 d-flex justify-content-center lightbox-modal-body">
+                <!-- Left side: Image (60%) -->
+                 
+                <div class="lightbox-img-container">
+                    <img id="lightboxImage" src="" class="img-fluid lightbox-img-main">
+                </div>
+                
+                
+                <!-- Right side: Post Details, Likes, Comments (15%) -->
+                <div class="lightbox-details-panel">
+                    <!-- Post Content -->
+                    <div class="p-3 border-bottom">
+                        <div class="d-flex align-items-center gap-3 mb-3">
+                            <img id="lightboxAuthorPic" src="" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                            <div>
+                                <h6 id="lightboxAuthorName" class="mb-0 fw-bold"></h6>
+                                <small class="text-secondary" id="lightboxPostTime"></small>
+                            </div>
+                        </div>
+                        
+                        <p id="lightboxPostContent" class="mb-0"></p>
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="p-3 border-bottom d-flex gap-3 justify-content-around">
+                        <div class="text-center">
+                            <div class="fw-bold" id="lightboxLikeCount">0</div>
+                            <small class="text-secondary">Likes</small>
+                        </div>
+                        <div class="text-center">
+                            <div class="fw-bold" id="lightboxCommentCount">0</div>
+                            <small class="text-secondary">Comments</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Likes Section -->
+                    <div class="p-3 border-bottom">
+                        <h6 class="mb-3">Likes</h6>
+                        <div id="lightboxLikesList" class="lightbox-scrollable-y lightbox-max-h-200">
+                            <small class="text-secondary">No likes yet</small>
+                        </div>
+                    </div>
+                    
+                    <!-- Comments Section -->
+                    <div class="p-3 flex-grow-1 d-flex flex-column" style="overflow: hidden;">
+                        <h6 class="mb-3">Comments</h6>
+                        <div id="lightboxCommentsList" class="lightbox-comment-list">
+                            <small class="text-secondary">No comments yet</small>
+                        </div>
+                        
+                        <!-- Comment Input -->
+                        <div class="border-top pt-3">
+                            <div class="d-flex gap-2 align-items-center">
+                                <?php if (!empty($userProfile['profile_pic'])): ?>
+                                    <img src="../uploads/<?= htmlspecialchars($userProfile['profile_pic']) ?>" class="rounded-circle lightbox-avatar-sm">
+                                <?php else: ?>
+                                    <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white lightbox-avatar-placeholder-sm">
+                                        <i class="bi bi-person-fill"></i>
+                                    </div>
+                                <?php endif; ?>
+                                <input type="text" id="lightboxCommentInput" class="form-control form-control-sm border-0 input-sm-text" 
+                                       placeholder="Write a comment...">
+                                <button class="btn btn-sm btn-primary rounded-circle btn-circle-md" 
+                                        onclick="submitCommentFromLightbox()">
+                                    <i class="bi bi-send-fill icon-md"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-function openLightbox(src) {
-    document.getElementById('lightboxImage').src = src;
-    new bootstrap.Modal(document.getElementById('imageLightboxModal')).show();
-}
-</script>
 
 <?php
 $pageScripts = ['newsfeed.js'];

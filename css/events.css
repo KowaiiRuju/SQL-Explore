@@ -1,0 +1,20 @@
+/* Events Page Styles */
+
+.event-empty-icon {
+    font-size: 3rem;
+}
+
+.w-100px {
+    width: 100px !important;
+}
+
+.opacity-60 {
+    opacity: 0.6;
+}
+
+.team-dot-sm {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    /* It was already rounded-circle in HTML but good to enforce if I remove class or generic */
+}

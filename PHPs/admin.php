@@ -189,7 +189,7 @@ require __DIR__ . '/includes/header.php';
                                 <div class="d-flex gap-2 align-items-center">
                                     <div class="input-group">
                                         <span class="input-group-text bg-white"><i class="bi bi-search" aria-hidden="true"></i></span>
-                                        <input type="text" id="searchInput" class="form-control" placeholder="Search username…" aria-label="Search username" oninput="filterUsers()">
+                                        <input type="text" id="searchInput" class="form-control border-0 admin-search-input" placeholder="Search users…" aria-label="Search username" oninput="filterUsers()">
                                     </div>
                                     <button type="button" class="btn btn-outline-secondary filter-toggle-btn" onclick="toggleFilterPanel()" title="Search options" aria-label="Toggle search options" aria-expanded="false" aria-controls="filterPanel">
                                         <i class="bi bi-sliders" aria-hidden="true"></i>
@@ -243,7 +243,7 @@ require __DIR__ . '/includes/header.php';
                                             <td class="fw-medium"><?= htmlspecialchars($u['username']) ?></td>
                                             <td>
                                                 <?php if (!empty($u['team_name'])): ?>
-                                                    <span class="badge rounded-pill" style="background:<?= htmlspecialchars($u['team_color'] ?? '#6c5ce7') ?>; color:#fff;">
+                                                    <span class="badge rounded-pill admin-team-badge" style="background:<?= htmlspecialchars($u['team_color'] ?? '#6c5ce7') ?>;">
                                                         <i class="bi bi-people-fill me-1"></i><?= htmlspecialchars($u['team_name']) ?>
                                                     </span>
                                                 <?php else: ?>
@@ -263,7 +263,7 @@ require __DIR__ . '/includes/header.php';
                                                     <button type="button" class="btn btn-sm btn-outline-primary" aria-label="Edit user <?= htmlspecialchars($u['username']) ?>" onclick="openEditUserModal(<?= (int)$u['id'] ?>)">
                                                         <i class="bi bi-pencil" aria-hidden="true"></i>
                                                     </button>
-                                                    <form method="post" action="admin.php" onsubmit="return confirm('Delete this user?');" class="d-inline">
+                                                    <form method="post" action="admin.php" class="d-inline delete-user-form">
                                                         <?php csrf_field(); ?>
                                                         <input type="hidden" name="action" value="delete">
                                                         <input type="hidden" name="id" value="<?= htmlspecialchars($u['id']) ?>">

@@ -150,7 +150,7 @@ try {
 
 /* ── View ─────────────────────────────────────────── */
 $pageTitle = 'Team Management - SQL Explore';
-$pageCss   = ['newsfeed.css', 'admin.css'];
+$pageCss   = ['newsfeed.css', 'admin.css', 'teams.css'];
 $bodyClass = 'body-dashboard admin-page';
 require __DIR__ . '/includes/header.php';
 ?>
@@ -172,14 +172,14 @@ require __DIR__ . '/includes/header.php';
                                 <p class="text-muted small mb-0">Create, edit, and manage teams and their members.</p>
                             </div>
                             <div class="d-flex gap-2">
-                                <form method="post" onsubmit="return confirm('Are you sure you want to randomly assign ALL users to teams? Existing assignments will be overwritten.');" class="d-inline">
+                                <form method="post" class="d-inline auto-assign-form">
                                     <?php csrf_field(); ?>
                                     <input type="hidden" name="action" value="auto_assign">
                                     <button type="submit" class="btn btn-outline-primary rounded-pill px-3">
                                         <i class="bi bi-shuffle me-2"></i>Random Assign
                                     </button>
                                 </form>
-                                <form method="post" onsubmit="return confirm('Are you sure you want to RESET all team assignments? This cannot be undone.');" class="d-inline">
+                                <form method="post" class="d-inline reset-teams-form">
                                     <?php csrf_field(); ?>
                                     <input type="hidden" name="action" value="reset_assignments">
                                     <button type="submit" class="btn btn-outline-danger rounded-pill px-3">
@@ -238,7 +238,7 @@ require __DIR__ . '/includes/header.php';
                                                         <h5 class="mb-0 fw-bold"><?= htmlspecialchars($team['name']) ?></h5>
                                                         <div class="d-flex align-items-center gap-2">
                                                             <small class="text-muted"><?= (int)$team['member_count'] ?> members</small>
-                                                            <span class="badge bg-primary rounded-pill" style="font-size: 0.65rem;"><?= (int)$team['score'] ?> pts</span>
+                                                            <span class="badge bg-primary rounded-pill fs-xs"><?= (int)$team['score'] ?> pts</span>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -259,7 +259,7 @@ require __DIR__ . '/includes/header.php';
                                                         </li>
                                                         <li><hr class="dropdown-divider"></li>
                                                         <li>
-                                                            <form method="post" onsubmit="return confirm('Delete this team? Members will be unassigned.');">
+                                                            <form method="post" class="delete-team-form">
                                                                 <?php csrf_field(); ?>
                                                                 <input type="hidden" name="action" value="delete_team">
                                                                 <input type="hidden" name="team_id" value="<?= (int)$team['id'] ?>">
@@ -279,7 +279,7 @@ require __DIR__ . '/includes/header.php';
                                                 <?php else: ?>
                                                     <?php foreach (array_slice($teamMembers, 0, 5) as $member): ?>
                                                         <div class="d-flex align-items-center mb-2">
-                                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2" style="width:32px; height:32px; font-size:0.8rem;">
+                                                            <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-2 team-member-avatar">
                                                                 <i class="bi bi-person-fill text-muted"></i>
                                                             </div>
                                                             <div>
@@ -321,10 +321,10 @@ require __DIR__ . '/includes/header.php';
                     <div class="mb-3 text-center">
                         <label class="form-label d-block text-muted small">Team Logo</label>
                         <div class="d-inline-block position-relative">
-                            <label for="newTeamLogo" class="btn btn-light rounded-circle border d-flex align-items-center justify-content-center shadow-sm" style="width: 80px; height: 80px; cursor:pointer;">
+                            <label for="newTeamLogo" class="btn btn-light rounded-circle border d-flex align-items-center justify-content-center shadow-sm team-logo-upload">
                                 <i class="bi bi-camera text-muted fs-4"></i>
                             </label>
-                            <input type="file" id="newTeamLogo" name="team_logo" class="d-none" accept="image/*" onchange="previewImage(this, 'addLogoP')">
+                            <input type="file" id="newTeamLogo" name="team_logo" class="d-none" accept="image/*">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -364,7 +364,7 @@ require __DIR__ . '/includes/header.php';
                     <div class="mb-3 text-center">
                         <label class="form-label d-block text-muted small">Team Logo</label>
                         <div class="d-inline-block position-relative">
-                            <div class="rounded-circle overflow-hidden border d-flex align-items-center justify-content-center mb-2 mx-auto" style="width: 80px; height: 80px; background: #f8f9fa;">
+                            <div class="rounded-circle overflow-hidden border d-flex align-items-center justify-content-center mb-2 mx-auto team-logo-preview">
                                 <img id="editLogoPreview" class="w-100 h-100 object-fit-cover d-none">
                                 <i class="bi bi-people text-muted fs-4" id="editLogoPlaceholder"></i>
                             </div>
@@ -414,9 +414,9 @@ require __DIR__ . '/includes/header.php';
                     <input type="hidden" name="team_id" id="membersTeamId">
                     <p class="text-muted small mb-3">Select users to assign to this team. Users already in another team will be moved.</p>
                     <div class="mb-3">
-                        <input type="text" id="memberSearch" class="form-control mb-2" placeholder="Search users..." oninput="filterMembersList()">
+                        <input type="text" id="memberSearch" class="form-control mb-2" placeholder="Search users...">
                     </div>
-                    <div class="border rounded p-2" style="max-height: 300px; overflow-y: auto;" id="membersList">
+                    <div class="border rounded p-2 max-h-300-scroll" id="membersList">
                         <?php foreach ($allUsers as $u): ?>
                             <div class="form-check py-1 member-row" data-username="<?= htmlspecialchars(strtolower($u['username'])) ?>">
                                 <input class="form-check-input member-check" type="checkbox" name="user_ids[]" value="<?= (int)$u['id'] ?>" id="memberUser<?= (int)$u['id'] ?>" data-team="<?= (int)($u['team_id'] ?? 0) ?>">
@@ -448,90 +448,9 @@ require __DIR__ . '/includes/header.php';
             'score' => (int) ($t['score'] ?? 0),
         ];
     }, $teams), JSON_HEX_TAG) ?>;
-
-    // Color preview
-    document.getElementById('newTeamColor')?.addEventListener('input', function() {
-        document.getElementById('colorPreview').textContent = this.value;
-    });
-    document.getElementById('editTeamColor')?.addEventListener('input', function() {
-        document.getElementById('editColorPreview').textContent = this.value;
-    });
-
-    // Logo Previews
-    const setupPreview = (input, imgId, placeholderId) => {
-        if (!input) return;
-        input.addEventListener('change', function() {
-            if (this.files && this.files[0]) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    if (imgId) {
-                        const img = document.getElementById(imgId);
-                        img.src = e.target.result;
-                        img.classList.remove('d-none');
-                    }
-                    if (placeholderId) {
-                        document.getElementById(placeholderId).classList.add('d-none');
-                    }
-                }
-                reader.readAsDataURL(this.files[0]);
-            }
-        });
-    };
-
-    setupPreview(document.getElementById('editTeamLogo'), 'editLogoPreview', 'editLogoPlaceholder');
-    setupPreview(document.getElementById('newTeamLogo'), null, null); // Add support for new logo preview if UI supported it
-
-    function openEditTeamModal(teamId) {
-        const team = teamsData.find(t => t.id === teamId);
-        if (!team) return;
-        document.getElementById('editTeamId').value = team.id;
-        document.getElementById('editTeamName').value = team.name;
-        document.getElementById('editTeamColor').value = team.color;
-        document.getElementById('editColorPreview').textContent = team.color;
-        document.getElementById('editTeamScore').value = team.score;
-        document.getElementById('editTeamModalLabel').textContent = 'Edit: ' + team.name;
-        
-        // Handle logo visual
-        const prevImg = document.getElementById('editLogoPreview');
-        const prevIcon = document.getElementById('editLogoPlaceholder');
-        const fileInput = document.getElementById('editTeamLogo');
-        fileInput.value = ''; // Reset input selection
-
-        if (team.logo) {
-            prevImg.src = '../uploads/' + team.logo;
-            prevImg.classList.remove('d-none');
-            prevIcon.classList.add('d-none');
-        } else {
-            prevImg.classList.add('d-none');
-            prevIcon.classList.remove('d-none');
-        }
-        
-        new bootstrap.Modal(document.getElementById('editTeamModal')).show();
-    }
-
-    function openMembersModal(teamId) {
-        const team = teamsData.find(t => t.id === teamId);
-        if (!team) return;
-        document.getElementById('membersTeamId').value = team.id;
-        document.getElementById('membersModalLabel').textContent = 'Manage Members: ' + team.name;
-        // Check appropriate users
-        document.querySelectorAll('.member-check').forEach(cb => {
-            cb.checked = parseInt(cb.dataset.team) === teamId;
-        });
-        document.getElementById('memberSearch').value = '';
-        filterMembersList();
-        new bootstrap.Modal(document.getElementById('membersModal')).show();
-    }
-
-    function filterMembersList() {
-        const q = document.getElementById('memberSearch').value.trim().toLowerCase();
-        document.querySelectorAll('.member-row').forEach(row => {
-            row.style.display = !q || row.dataset.username.includes(q) ? '' : 'none';
-        });
-    }
 </script>
 
 <?php
-$pageScripts = [];
+$pageScripts = ['teams.js'];
 require __DIR__ . '/includes/footer.php';
 ?>

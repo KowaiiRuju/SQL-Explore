@@ -3,6 +3,11 @@
  */
 
 const FRIENDS_API = 'api/friends.php';
+const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+function appendCsrf(formData) {
+    if (CSRF_TOKEN) formData.append('_token', CSRF_TOKEN);
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     // Check if we are on friends.php
@@ -16,7 +21,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const navbarActions = document.getElementById('mobileNavbarActions');
         if (mobileActions && navbarActions) {
             navbarActions.innerHTML = mobileActions.innerHTML;
+
+            const searchBtn = navbarActions.querySelector('.mobile-search-btn');
+            if (searchBtn) {
+                searchBtn.addEventListener('click', () => {
+                    const input = document.getElementById('friendSearchInput');
+                    if (input) {
+                        input.focus();
+                        window.scrollTo(0, 0);
+                    }
+                });
+            }
         }
+
+        // Close search button
+        document.querySelector('.close-search-btn')?.addEventListener('click', clearSearch);
     }
 
     // Global action button handler (works on profile_view.php too)
@@ -37,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const formData = new FormData();
             formData.append('action', action);
             formData.append('user_id', userId);
+            appendCsrf(formData);
 
             const res = await fetch(FRIENDS_API, { method: 'POST', body: formData });
             const data = await res.json();
@@ -159,10 +179,10 @@ async function loadRequests() {
 
             if (data.requests.length > 0) {
                 badge.textContent = data.requests.length;
-                badge.style.display = 'inline-block';
+                badge.classList.remove('d-none');
                 grid.innerHTML = data.requests.map(r => createRequestCard(r)).join('');
             } else {
-                badge.style.display = 'none';
+                badge.classList.add('d-none');
                 grid.innerHTML = `
                     <div class="col-12 text-center py-5 text-muted">
                         <i class="bi bi-inbox" style="font-size:2rem;"></i>

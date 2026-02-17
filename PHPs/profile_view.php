@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/session_guard.php';
+require_once __DIR__ . '/includes/csrf.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/helpers.php';
 
@@ -61,7 +62,7 @@ if ($friendship) {
 // Common vars for header
 $userProfile = $currentUser; // For sidebar
 $pageTitle = htmlspecialchars($user['username']) . ' - Profile';
-$pageCss   = ['newsfeed.css', 'profile_view.css'];
+$pageCss   = ['newsfeed.css', 'profile_view.css', 'profile.css'];
 $bodyClass = 'body-dashboard';
 require __DIR__ . '/includes/header.php';
 ?>
@@ -78,19 +79,19 @@ require __DIR__ . '/includes/header.php';
                     <div class="col-md-8 col-lg-6">
                         <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
                             <!-- Header / Banner placeholder -->
-                            <div class="bg-primary text-center pt-5 pb-5 position-relative" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+                            <div class="bg-primary text-center pt-5 pb-5 position-relative bg-profile-banner">
                                 <!-- Back button -->
                                 <a href="friends.php" class="btn btn-sm btn-light btn-back position-absolute top-0 start-0 m-3 rounded-circle shadow-sm" title="Back to Friends">
                                     <i class="bi bi-arrow-left"></i>
                                 </a>
                             </div>
 
-                            <div class="card-body text-center pt-0 position-relative" style="margin-top: -60px;">
+                            <div class="card-body text-center pt-0 position-relative mt-n60">
                                 <!-- Profile Pic -->
                                 <?php if (!empty($user['profile_pic'])): ?>
-                                    <img src="../uploads/<?= htmlspecialchars($user['profile_pic']) ?>" class="rounded-circle border border-4 border-white shadow" width="120" height="120" style="object-fit:cover; background:#fff;">
+                                    <img src="../uploads/<?= htmlspecialchars($user['profile_pic']) ?>" class="rounded-circle border border-4 border-white shadow img-cover-full bg-white" width="120" height="120">
                                 <?php else: ?>
-                                    <div class="rounded-circle border border-4 border-white shadow mx-auto d-flex align-items-center justify-content-center bg-white text-primary" style="width:120px; height:120px; font-size:3rem;">
+                                    <div class="rounded-circle border border-4 border-white shadow mx-auto d-flex align-items-center justify-content-center bg-white text-primary profile-avatar-lg-placeholder">
                                         <i class="bi bi-person-fill"></i>
                                     </div>
                                 <?php endif; ?>
@@ -104,7 +105,7 @@ require __DIR__ . '/includes/header.php';
                                 <?php if (!empty($user['team_name'])): ?>
                                     <span class="badge rounded-pill mb-3 px-3 py-2 d-inline-flex align-items-center gap-2" style="background-color: <?= htmlspecialchars($user['team_color'] ?? '#6c5ce7') ?>; color: #fff; font-weight: 500;">
                                         <?php if (!empty($user['team_logo']) && file_exists(__DIR__ . '/../uploads/' . $user['team_logo'])): ?>
-                                            <img src="../uploads/<?= htmlspecialchars($user['team_logo']) ?>" class="rounded-circle border border-white" style="width: 20px; height: 20px; object-fit: cover;">
+                                            <img src="../uploads/<?= htmlspecialchars($user['team_logo']) ?>" class="rounded-circle border border-white team-logo-sm">
                                         <?php else: ?>
                                             <i class="bi bi-people-fill"></i>
                                         <?php endif; ?>
@@ -115,11 +116,11 @@ require __DIR__ . '/includes/header.php';
                                 <!-- Comparison / Info Grid -->
                                 <div class="row mt-4 mb-4 text-start px-4">
                                     <div class="col-6 mb-3">
-                                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size:0.7rem;">Joined</small>
+                                        <small class="text-muted d-block text-uppercase fw-bold text-xs-bold">Joined</small>
                                         <span><?= date('F j, Y', strtotime($user['created_at'])) ?></span>
                                     </div>
                                     <div class="col-6 mb-3">
-                                        <small class="text-muted d-block text-uppercase fw-bold" style="font-size:0.7rem;">Role</small>
+                                        <small class="text-muted d-block text-uppercase fw-bold text-xs-bold">Role</small>
                                         <span><?= !empty($user['is_admin']) ? 'Admin' : 'Member' ?></span>
                                     </div>
                                     <!-- Sensitive info hidden -->

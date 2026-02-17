@@ -210,3 +210,31 @@ span.flatpickr-weekday {
     background: #fff;
     cursor: pointer;
 }
+
+/* ── Refactored Inline Styles ── */
+.signup-h2 {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.signup-select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+}
+
+.text-muted-sm {
+    color: grey;
+    font-size: 0.8rem;
+}
+
+.btn-submit-signup {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+.text-center-mt {
+    text-align: center;
+    margin-top: 1.5rem;
+}

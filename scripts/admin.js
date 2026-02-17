@@ -12,6 +12,15 @@ document.addEventListener('DOMContentLoaded', function () {
     if (editModalEl) {
         editUserModalBS = new bootstrap.Modal(editModalEl);
     }
+
+    // Delete Confirmation
+    document.addEventListener('submit', function (e) {
+        if (e.target.classList.contains('delete-user-form')) {
+            if (!confirm('Delete this user?')) {
+                e.preventDefault();
+            }
+        }
+    });
 });
 
 function openAddUserModal() {

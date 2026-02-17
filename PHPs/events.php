@@ -183,7 +183,7 @@ try {
 }
 
 $pageTitle = 'Events - SQL Explore';
-$pageCss   = ['newsfeed.css', 'admin.css'];
+$pageCss   = ['newsfeed.css', 'admin.css', 'events.css'];
 $bodyClass = 'body-dashboard';
 require __DIR__ . '/includes/header.php';
 ?>
@@ -224,7 +224,7 @@ require __DIR__ . '/includes/header.php';
 
                         <?php if (empty($events)): ?>
                             <div class="admin-card text-center py-5">
-                                <i class="bi bi-calendar-x text-muted" style="font-size: 3rem;"></i>
+                                <i class="bi bi-calendar-x text-muted event-empty-icon"></i>
                                 <h5 class="mt-3 text-muted">No events yet</h5>
                                 <?php if ($isAdmin): ?>
                                     <p class="text-muted">Create an event to start scoring teams.</p>
@@ -265,7 +265,7 @@ require __DIR__ . '/includes/header.php';
                                                             </li>
                                                             <li><hr class="dropdown-divider"></li>
                                                             <li>
-                                                                <form method="post" onsubmit="return confirm('Delete this event? All scores associated with it will be removed from teams.');">
+                                                                <form method="post" class="delete-event-form">
                                                                     <?php csrf_field(); ?>
                                                                     <input type="hidden" name="action" value="delete_event">
                                                                     <input type="hidden" name="event_id" value="<?= (int)$evt['id'] ?>">
@@ -384,7 +384,7 @@ require __DIR__ . '/includes/header.php';
                                     <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <input type="number" name="first_score" class="form-control" value="100" style="width: 100px;" placeholder="Pts">
+                            <input type="number" name="first_score" class="form-control w-100px" value="100" placeholder="Pts">
                         </div>
                     </div>
 
@@ -397,12 +397,12 @@ require __DIR__ . '/includes/header.php';
                                     <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <input type="number" name="second_score" class="form-control" value="50" style="width: 100px;" placeholder="Pts">
+                            <input type="number" name="second_score" class="form-control w-100px" value="50" placeholder="Pts">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label text-dark fw-bold" style="opacity: 0.6;"><i class="bi bi-trophy-fill me-1"></i>3rd Place</label>
+                        <label class="form-label text-dark fw-bold opacity-60"><i class="bi bi-trophy-fill me-1"></i>3rd Place</label>
                         <div class="d-flex gap-2">
                             <select name="third_place" class="form-select">
                                 <option value="">Select Team</option>
@@ -410,7 +410,7 @@ require __DIR__ . '/includes/header.php';
                                     <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?></option>
                                 <?php endforeach; ?>
                             </select>
-                            <input type="number" name="third_score" class="form-control" value="25" style="width: 100px;" placeholder="Pts">
+                            <input type="number" name="third_score" class="form-control w-100px" value="25" placeholder="Pts">
                         </div>
                     </div>
 
@@ -443,10 +443,10 @@ require __DIR__ . '/includes/header.php';
                         <?php foreach ($teams as $t): ?>
                             <div class="mb-2 d-flex align-items-center justify-content-between p-2 border rounded">
                                 <div class="d-flex align-items-center gap-2">
-                                    <div class="rounded-circle" style="width:24px; height:24px; background:<?= htmlspecialchars($t['color']) ?>;"></div>
+                                    <div class="rounded-circle team-dot-sm" style="background:<?= htmlspecialchars($t['color']) ?>;"></div>
                                     <span class="fw-medium"><?= htmlspecialchars($t['name']) ?></span>
                                 </div>
-                                <input type="number" name="scores[<?= (int)$t['id'] ?>]" class="form-control form-control-sm text-end" style="width: 100px;" value="0" min="0" id="score_input_<?= (int)$t['id'] ?>">
+                                <input type="number" name="scores[<?= (int)$t['id'] ?>]" class="form-control form-control-sm text-end w-100px" value="0" min="0" id="score_input_<?= (int)$t['id'] ?>">
                             </div>
                         <?php endforeach; ?>
                     </div>
@@ -463,28 +463,13 @@ require __DIR__ . '/includes/header.php';
 
 <script>
     const scoreMap = <?= json_encode($scoreMap) ?>;
-
-    function openScoreModal(eventId) {
-        document.getElementById('scoreEventId').value = eventId;
-        const eventScores = scoreMap[eventId] || {};
-        <?php foreach ($teams as $t): ?>
-            document.getElementById('score_input_<?= (int)$t['id'] ?>').value = eventScores[<?= (int)$t['id'] ?>] || 0;
-        <?php endforeach; ?>
-        new bootstrap.Modal(document.getElementById('scoreModal')).show();
-    }
-
-    function openPlacementModal(eventId) {
-        document.getElementById('placementEventId').value = eventId;
-        // Optionally pre-fill if we could guess, but probably best to leave blank so admin makes active choice
-        // Or if we have data, try to reverse engineer who is 1st, 2nd, 3rd?
-        // That's complex because we don't know if the score is for placement or participation.
-        // Let's just leave it blank for now or standard default.
-        new bootstrap.Modal(document.getElementById('placementModal')).show();
-    }
+    const teamsData = <?= json_encode(array_map(function($t){
+        return ['id' => (int)$t['id']];
+    }, $teams)) ?>;
 </script>
 <?php endif; ?>
 
 <?php
-$pageScripts = []; 
+$pageScripts = ['events.js']; 
 require __DIR__ . '/includes/footer.php';
 ?>

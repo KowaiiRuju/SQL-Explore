@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/includes/session_guard.php';
+require_once __DIR__ . '/includes/csrf.php';
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/includes/helpers.php';
 
@@ -32,7 +33,7 @@ require __DIR__ . '/includes/header.php';
         
         <!-- Mobile Action Buttons (Teleported to Navbar) -->
         <div id="mobileActionsTemplate" class="d-none">
-            <button class="btn btn-light rounded-circle" type="button" onclick="document.getElementById('friendSearchInput').focus(); window.scrollTo(0,0);">
+            <button class="btn btn-light rounded-circle mobile-search-btn" type="button">
                 <i class="bi bi-search"></i>
             </button>
         </div>
@@ -60,7 +61,7 @@ require __DIR__ . '/includes/header.php';
                     <h5 class="fw-bold mb-3">Search Results</h5>
                     <div class="row g-3" id="searchResultsGrid"></div>
                     <div class="text-center mt-3">
-                        <button class="btn btn-link text-decoration-none" onclick="clearSearch()">Close Search</button>
+                        <button class="btn btn-link text-decoration-none close-search-btn">Close Search</button>
                     </div>
                 </div>
 
@@ -74,7 +75,7 @@ require __DIR__ . '/includes/header.php';
                         </li>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link rounded-pill px-4" id="pills-requests-tab" data-bs-toggle="pill" data-bs-target="#pills-requests" type="button" role="tab">
-                                Friend Requests <span class="badge bg-danger ms-1" id="requestsCountBadge" style="display:none;">0</span>
+                                Friend Requests <span class="badge bg-danger ms-1 d-none" id="requestsCountBadge">0</span>
                             </button>
                         </li>
                     </ul>

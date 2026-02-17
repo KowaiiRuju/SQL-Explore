@@ -6,6 +6,7 @@
  */
 session_start();
 require_once __DIR__ . '/../includes/csrf.php';
+require_once __DIR__ . '/../includes/helpers.php'; // For time_ago
 header('Content-Type: application/json');
 
 if (empty($_SESSION['user'])) {
@@ -173,9 +174,84 @@ try {
             echo json_encode(['success' => true]);
             break;
 
-        default:
-            echo json_encode(['error' => 'Unknown action']);
-    }
+        /* ── Get Post Details (for lightbox) ────── */
+        case 'get_post_details':
+            $postId = (int)($_GET['post_id'] ?? 0);
+            if (!$postId) {
+                echo json_encode(['error' => 'Invalid post ID']);
+                exit;
+            }
+
+            // Get post with author info
+            $post = $pdo->prepare('
+                SELECT p.*, 
+                       u.username, u.f_name, u.l_name, u.profile_pic,
+                       (SELECT COUNT(*) FROM post_likes WHERE post_id = :pid) as like_count,
+                       (SELECT COUNT(*) FROM post_comments WHERE post_id = :pid2) as comment_count
+                FROM posts p
+                JOIN users u ON p.user_id = u.id
+                WHERE p.id = :id
+            ');
+            $post->execute([':id' => $postId, ':pid' => $postId, ':pid2' => $postId]);
+            $postData = $post->fetch();
+
+            if (!$postData) {
+                echo json_encode(['error' => 'Post not found']);
+                exit;
+            }
+
+            // Get likes with user info
+            $likes = $pdo->prepare('
+                SELECT u.username, u.f_name, u.l_name, u.profile_pic
+                FROM post_likes pl
+                JOIN users u ON pl.user_id = u.id
+                WHERE pl.post_id = :pid
+                LIMIT 20
+            ');
+            $likes->execute([':pid' => $postId]);
+            $likesList = array_map(function($like) {
+                return [
+                    'name' => trim(($like['f_name'] ?? '') . ' ' . ($like['l_name'] ?? '')) ?: $like['username'],
+                    'profile_pic' => $like['profile_pic'] ?: 'default.jpg'
+                ];
+            }, $likes->fetchAll());
+
+            // Get comments with user info
+            $comments = $pdo->prepare('
+                SELECT pc.*, u.username, u.f_name, u.l_name, u.profile_pic
+                FROM post_comments pc
+                JOIN users u ON pc.user_id = u.id
+                WHERE pc.post_id = :pid
+                ORDER BY pc.created_at DESC
+            ');
+            $comments->execute([':pid' => $postId]);
+            $commentsList = array_map(function($comment) {
+                return [
+                    'name' => trim(($comment['f_name'] ?? '') . ' ' . ($comment['l_name'] ?? '')) ?: $comment['username'],
+                    'content' => $comment['content'],
+                    'profile_pic' => $comment['profile_pic'] ?: 'default.jpg',
+                    'time_ago' => time_ago($comment['created_at'])
+                ];
+            }, $comments->fetchAll());
+
+
+            echo json_encode([
+                'success' => true,
+                'post' => [
+                    'content' => $postData['content'],
+                    'author_name' => trim(($postData['f_name'] ?? '') . ' ' . ($postData['l_name'] ?? '')) ?: $postData['username'],
+                    'author_pic' => $postData['profile_pic'] ?: 'default.jpg',
+                    'time_ago' => time_ago($postData['created_at']),
+                    'like_count' => (int)$postData['like_count'],
+                    'comment_count' => (int)$postData['comment_count'],
+                    'likes' => $likesList,
+                    'comments' => $commentsList
+                ]
+            ]);
+            break;
+
+    } // End switch
+
 } catch (PDOException $e) {
     http_response_code(500);
     echo json_encode(['error' => 'Database error: ' . $e->getMessage()]);

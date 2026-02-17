@@ -3,6 +3,12 @@
  */
 
 const MSG_API = 'api/messages.php';
+const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
+
+function appendCsrf(formData) {
+    if (CSRF_TOKEN) formData.append('_token', CSRF_TOKEN);
+}
+
 let activeConversationUserId = null;
 let pollInterval = null;
 
@@ -32,10 +38,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Mobile: Move actions to navbar
+    // Mobile: Move actions to navbar
     const mobileActions = document.getElementById('mobileActionsTemplate');
     const navbarActions = document.getElementById('mobileNavbarActions');
     if (mobileActions && navbarActions) {
         navbarActions.innerHTML = mobileActions.innerHTML;
+
+        // Attach listeners to the moved buttons
+        const searchBtn = navbarActions.querySelector('.mobile-search-btn');
+        if (searchBtn) {
+            searchBtn.addEventListener('click', () => {
+                const searchInput = document.querySelector('.conversations-search input');
+                if (searchInput) {
+                    searchInput.focus();
+                    window.scrollTo(0, 0);
+                }
+            });
+        }
+
+        const newChatMobileBtn = navbarActions.querySelector('.mobile-new-chat-btn');
+        if (newChatMobileBtn) {
+            newChatMobileBtn.addEventListener('click', () => {
+                const mainBtn = document.getElementById('newChatBtn');
+                if (mainBtn) mainBtn.click();
+            });
+        }
     }
 
     // Auto-resize textarea
@@ -73,6 +100,24 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         searchTimeout = setTimeout(() => searchUsers(q), 300);
+    });
+
+    // Conversation List Delegation
+    document.getElementById('conversationsList').addEventListener('click', (e) => {
+        const item = e.target.closest('.conversation-item');
+        if (item) {
+            const { userId, name, username, profilePic } = item.dataset;
+            openConversation(parseInt(userId), name, username, profilePic);
+        }
+    });
+
+    // Search Results Delegation
+    document.getElementById('searchResults').addEventListener('click', (e) => {
+        const item = e.target.closest('.search-result-item');
+        if (item) {
+            const { userId, name, username, profilePic } = item.dataset;
+            startConversation(parseInt(userId), name, username, profilePic);
+        }
     });
 
     // Back button (mobile)
@@ -197,8 +242,10 @@ async function loadConversations(silent = false) {
 
         list.innerHTML = data.conversations.map(c => `
             <div class="conversation-item ${activeConversationUserId === c.user_id ? 'active' : ''} ${c.unread_count > 0 ? 'unread' : ''}" 
-                 onclick="openConversation(${c.user_id}, '${escapeHtml(c.name)}', '${escapeHtml(c.username)}', '${escapeHtml(c.profile_pic)}')"
-                 data-user-id="${c.user_id}">
+                 data-user-id="${c.user_id}"
+                 data-name="${escapeHtml(c.name)}"
+                 data-username="${escapeHtml(c.username)}"
+                 data-profile-pic="${escapeHtml(c.profile_pic)}">
                 ${avatarHtml(c.profile_pic, c.name, 44)}
                 <div class="conversation-info">
                     <div class="d-flex justify-content-between align-items-center">
@@ -295,6 +342,7 @@ async function sendMessage() {
         formData.append('action', 'send_message');
         formData.append('receiver_id', activeConversationUserId);
         formData.append('content', content);
+        appendCsrf(formData);
 
         const res = await fetch(MSG_API, { method: 'POST', body: formData });
         const data = await res.json();
@@ -327,6 +375,7 @@ async function deleteConversation(userId) {
         const formData = new FormData();
         formData.append('action', 'delete_conversation');
         formData.append('user_id', userId);
+        appendCsrf(formData);
 
         const res = await fetch(MSG_API, { method: 'POST', body: formData });
         const data = await res.json();
@@ -368,7 +417,11 @@ async function searchUsers(query) {
         }
 
         container.innerHTML = data.users.map(u => `
-            <div class="search-result-item" onclick="startConversation(${u.id}, '${escapeHtml(u.name)}', '${escapeHtml(u.username)}', '${escapeHtml(u.profile_pic)}')">
+            <div class="search-result-item" 
+                 data-user-id="${u.id}"
+                 data-name="${escapeHtml(u.name)}"
+                 data-username="${escapeHtml(u.username)}"
+                 data-profile-pic="${escapeHtml(u.profile_pic)}">
                 ${avatarHtml(u.profile_pic, u.name, 36)}
                 <div>
                     <div class="fw-medium small">${escapeHtml(u.name)}</div>

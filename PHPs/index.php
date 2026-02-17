@@ -9,7 +9,7 @@ require __DIR__ . '/includes/header.php';
 <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4">
     <div class="container-fluid px-5">
         <a class="navbar-brand fw-bold text-primary fs-4" href="#">
-            <div class="logo-square d-inline-block bg-primary me-2" style="width: 24px; height: 24px;"></div>
+            <div class="logo-square d-inline-block bg-primary me-2"></div>
             LOGO
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,7 +46,7 @@ require __DIR__ . '/includes/header.php';
         <div class="col-lg-7">
             <div class="hero-image-container position-relative">
                 <!-- Illustration placeholder -->
-                <img src="../images/landing.png" alt="Business Meeting Illustration" class="img-fluid" style="pointer-events: none;">
+                <img src="../images/landing.png" alt="Business Meeting Illustration" class="img-fluid pointer-events-none">
                 
                 <!-- Chat bubbles overlay -->
                 <div class="chat-bubble bubble-1"><i class="bi bi-graph-up-arrow"></i></div>

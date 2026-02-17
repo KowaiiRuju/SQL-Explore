@@ -324,3 +324,64 @@
     background: #dfe6e9;
     border-radius: 4px;
 }
+
+/* ── Refactored Inline Styles ── */
+.btn-circle-36 {
+    width: 36px;
+    height: 36px;
+    padding: 0;
+}
+
+.search-icon-pos {
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #b2bec3;
+}
+
+.search-input-pad {
+    padding-left: 36px !important;
+}
+
+.fs-2rem {
+    font-size: 2rem;
+}
+
+.chat-empty-icon {
+    font-size: 4rem;
+    color: #dfe6e9;
+}
+
+.rounded-12 {
+    border-radius: 12px !important;
+}
+
+.resize-none {
+    resize: none;
+}
+
+.btn-circle-42 {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.profile-modal-img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.profile-modal-placeholder {
+    width: 100px;
+    height: 100px;
+    background: #6c5ce7;
+    color: #fff;
+    font-size: 2.5rem;
+}
+
+.max-h-300 {
+    max-height: 300px;
+}

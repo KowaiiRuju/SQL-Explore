@@ -137,9 +137,9 @@ require __DIR__ . '/includes/header.php';
                 <!-- Cover Photo Area -->
                 <div class="profile-cover position-relative">
                     <?php if (!empty($user['cover_photo']) && file_exists(__DIR__ . '/../uploads/' . $user['cover_photo'])): ?>
-                        <img src="../uploads/<?= htmlspecialchars($user['cover_photo']) ?>" class="w-100 h-100 object-fit-cover" alt="Cover">
+                        <img src="../uploads/<?= htmlspecialchars($user['cover_photo']) ?>" class="img-cover-full" alt="Cover">
                     <?php else: ?>
-                        <div class="w-100 h-100 bg-gradient-primary" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);"></div>
+                        <div class="bg-profile-cover-fallback"></div>
                     <?php endif; ?>
                     
                     
@@ -172,13 +172,13 @@ require __DIR__ . '/includes/header.php';
                                 <h2 class="fw-bold mb-0">
                                     <?= htmlspecialchars(($user['f_name'] ?? '') . ' ' . ($user['l_name'] ?? '')) ?>
                                     <?php if (!empty($user['is_admin'])): ?>
-                                        <i class="bi bi-patch-check-fill text-primary ms-1" title="Admin" style="font-size: 0.6em; vertical-align: middle;"></i>
+                                        <i class="bi bi-patch-check-fill text-primary ms-1 icon-verify" title="Verified Member"></i>
                                     <?php endif; ?>
                                 </h2>
                                 <p class="text-muted mb-2">@<?= htmlspecialchars($user['username']) ?></p>
                                 
                                 <?php if (!empty($user['bio'])): ?>
-                                    <p class="mb-2 col-lg-8" style="white-space: pre-wrap;"><?= htmlspecialchars($user['bio']) ?></p>
+                                    <p class="text-muted text-pre-wrap"><?= htmlspecialchars($user['bio'] ?? 'No bio yet.') ?></p>
                                 <?php else: ?>
                                     <p class="text-muted fst-italic mb-2">No bio yet.</p>
                                 <?php endif; ?>
@@ -190,7 +190,7 @@ require __DIR__ . '/includes/header.php';
                                     <?php if (!empty($user['team_name'])): ?>
                                         <span class="badge rounded-pill text-white px-3 py-2 d-inline-flex align-items-center gap-2" style="background-color: <?= htmlspecialchars($user['team_color']) ?>">
                                             <?php if (!empty($user['team_logo']) && file_exists(__DIR__ . '/../uploads/' . $user['team_logo'])): ?>
-                                                <img src="../uploads/<?= htmlspecialchars($user['team_logo']) ?>" class="rounded-circle border border-white" style="width: 20px; height: 20px; object-fit: cover;">
+                                                <img src="../uploads/<?= htmlspecialchars($user['team_logo']) ?>" class="rounded-circle border border-white team-logo-limit">
                                             <?php else: ?>
                                                 <i class="bi bi-people-fill"></i>
                                             <?php endif; ?>
@@ -218,25 +218,25 @@ require __DIR__ . '/includes/header.php';
                                     <h5 class="fw-bold mb-4">Personal Information</h5>
                                     <div class="row g-4">
                                         <div class="col-md-6">
-                                            <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Email</small>
+                                            <small class="text-muted d-block text-uppercase fw-bold label-small-caps">Email</small>
                                             <div class="fw-medium text-break">
                                                 <?= !empty($user['email']) ? htmlspecialchars($user['email']) : '<span class="text-muted fst-italic">Not specified</span>' ?>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Birthday</small>
+                                            <small class="text-muted d-block text-uppercase fw-bold label-small-caps">Birthday</small>
                                             <div class="fw-medium">
                                                 <?= !empty($user['birthdate']) ? date('F j, Y', strtotime($user['birthdate'])) : '<span class="text-muted fst-italic">Not specified</span>' ?>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Gender</small>
+                                            <small class="text-muted d-block text-uppercase fw-bold label-small-caps">Gender</small>
                                             <div class="fw-medium">
                                                 <?= !empty($user['gender']) ? htmlspecialchars($user['gender']) : '<span class="text-muted fst-italic">Not specified</span>' ?>
                                             </div>
                                         </div>
                                         <div class="col-md-6">
-                                            <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.75rem; letter-spacing: 0.5px;">Joined</small>
+                                            <small class="text-muted d-block text-uppercase fw-bold label-small-caps">Joined</small>
                                             <div class="fw-medium">
                                                 <?= !empty($user['created_at']) ? date('F j, Y', strtotime($user['created_at'])) : '<span class="text-muted fst-italic">Unknown</span>' ?>
                                             </div>
@@ -268,8 +268,8 @@ require __DIR__ . '/includes/header.php';
                     
                     <!-- Profile Pic Upload -->
                     <div class="text-center mb-5">
-                        <div class="position-relative d-inline-block">
-                            <div class="rounded-circle overflow-hidden border border-3 border-light shadow-sm" style="width:120px; height:120px;">
+                        <div class="mx-auto position-relative avatar-upload-wrapper">
+                            <div class="rounded-circle overflow-hidden border border-3 border-light shadow-sm">
                                 <?php if (!empty($user['profile_pic']) && file_exists(__DIR__ . '/../uploads/' . $user['profile_pic'])): ?>
                                     <img src="../uploads/<?= htmlspecialchars($user['profile_pic']) ?>" id="previewAvatar" class="w-100 h-100 object-fit-cover">
                                 <?php else: ?>
@@ -279,10 +279,10 @@ require __DIR__ . '/includes/header.php';
                                     <img id="previewAvatar" class="w-100 h-100 object-fit-cover d-none">
                                 <?php endif; ?>
                             </div>
-                            <label for="uploadAvatar" class="btn btn-primary rounded-circle position-absolute bottom-0 end-0 p-2 shadow-sm" style="width:40px; height:40px; cursor: pointer;" title="Change Profile Picture">
+                            <label for="profilePicInput" class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm avatar-upload-btn" title="Change Profile Picture">
                                 <i class="bi bi-camera-fill"></i>
                             </label>
-                            <input type="file" name="profile_pic" id="uploadAvatar" class="d-none" accept="image/*" onchange="previewImage(this, 'previewAvatar')">
+                            <input type="file" name="profile_pic" id="uploadAvatar" class="d-none" accept="image/*">
                         </div>
                         <div class="small text-muted mt-2">Update Profile Picture</div>
                     </div>
@@ -323,19 +323,7 @@ require __DIR__ . '/includes/header.php';
     </div>
 </div>
 
-<script>
-function previewImage(input, targetId) {
-    if (input.files && input.files[0]) {
-        var reader = new FileReader();
-        reader.onload = function(e) {
-            var img = document.getElementById(targetId);
-            img.src = e.target.result;
-            img.classList.remove('d-none');
-            // Check if there was a default div sibling and hide it logic if needed, but simplistic is fine
-        }
-        reader.readAsDataURL(input.files[0]);
-    }
-}
-</script>
-
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php 
+$pageScripts = ['profile.js'];
+require __DIR__ . '/includes/footer.php'; 
+?>

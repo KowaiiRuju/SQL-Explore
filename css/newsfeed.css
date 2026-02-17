@@ -434,3 +434,151 @@ body.body-dashboard .col-lg-4::-webkit-scrollbar-thumb:hover {
 .btn-close:hover {
     opacity: 1;
 }
+
+/* ── Refactored Inline Styles ── */
+.img-cover {
+    object-fit: cover !important;
+}
+
+.icon-placeholder-lg {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+}
+
+.badge-sm {
+    font-size: 0.65rem !important;
+}
+
+.img-preview-lg {
+    max-height: 200px;
+    max-width: 100%;
+}
+
+.btn-circle-xs {
+    width: 28px;
+    height: 28px;
+    padding: 0 !important;
+}
+
+.btn-circle-sm {
+    width: 30px;
+    height: 30px;
+    padding: 0 !important;
+}
+
+.btn-circle-md {
+    width: 32px;
+    height: 32px;
+    padding: 0 !important;
+    flex-shrink: 0;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.icon-xxl {
+    font-size: 3rem;
+}
+
+.icon-xl {
+    font-size: 1.2rem;
+}
+
+.post-img-lg {
+    max-height: 400px;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.icon-sm {
+    font-size: 0.7rem;
+}
+
+.icon-md {
+    font-size: 0.75rem;
+}
+
+.rank-indicator {
+    width: 20px;
+    text-align: center;
+}
+
+.team-icon-base {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.modal-avatar-lg {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.modal-avatar-placeholder-lg {
+    width: 100px;
+    height: 100px;
+    background: #6c5ce7;
+    color: #fff;
+    font-size: 2.5rem;
+}
+
+.icon-fixed-width {
+    width: 20px;
+    text-align: center;
+}
+
+.team-rank-badge {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+}
+
+.leaderboard-team-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.text-sm-plus {
+    font-size: 0.9rem;
+}
+
+/* Lightbox Styles moved to css/lightbox.css */
+
+.leaderboard-offcanvas-bg {
+    background: #ffffff;
+}
+
+.leaderboard-header-bg {
+    background: #fff;
+}
+
+.leaderboard-body-bg {
+    background: #f8f9fa;
+}
+
+.leaderboard-item-bg {
+    background: #fff;
+    border: 1px solid #e9ecef;
+}

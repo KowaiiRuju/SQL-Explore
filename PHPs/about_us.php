@@ -9,7 +9,7 @@ require __DIR__ . '/includes/header.php';
 <nav class="navbar navbar-expand-lg navbar-light bg-transparent py-4">
     <div class="container-fluid px-5">
         <a class="navbar-brand fw-bold text-primary fs-4" href="index.php">
-            <div class="logo-square d-inline-block bg-primary me-2" style="width: 24px; height: 24px;"></div>
+            <div class="logo-square d-inline-block bg-primary me-2"></div>
             LOGO
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

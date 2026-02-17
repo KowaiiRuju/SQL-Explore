@@ -94,3 +94,73 @@ body.body-profile {
     min-height: 100vh;
     overflow-y: auto;
 }
+
+/* ── Refactored Inline Styles ── */
+.img-cover-full {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.bg-profile-banner {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe) !important;
+}
+
+.bg-profile-cover-fallback {
+    background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+    width: 100%;
+    height: 100%;
+}
+
+.profile-avatar-lg-placeholder {
+    width: 120px;
+    height: 120px;
+    font-size: 3rem;
+}
+
+.team-logo-limit {
+    width: 20px;
+    height: 20px;
+    object-fit: cover !important;
+}
+
+.icon-verify {
+    font-size: 0.6em;
+    vertical-align: middle;
+}
+
+.text-pre-wrap {
+    white-space: pre-wrap;
+}
+
+.label-small-caps {
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
+}
+
+.avatar-upload-wrapper {
+    width: 120px;
+    height: 120px;
+}
+
+.avatar-upload-btn {
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+}
+
+.mt-n60 {
+    margin-top: -60px;
+}
+
+.team-logo-sm {
+    width: 20px;
+    height: 20px;
+    object-fit: cover;
+}
+
+.text-xs-bold {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}

@@ -34,6 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Password Real-time Validation
+    const passwordInput = document.getElementById('passwordInput');
+    if (passwordInput) {
+        passwordInput.addEventListener('input', validatePassword);
+    }
+
     // Username realtime check (optional enhancement: denounce)
     const usernameInput = document.getElementById('usernameInput');
     let timeout = null;
@@ -51,6 +57,48 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+function validatePassword() {
+    const pw = document.getElementById('passwordInput').value;
+    const reqs = {
+        length: pw.length >= 8,
+        upper: /[A-Z]/.test(pw),
+        number: /[0-9]/.test(pw),
+        special: /[!@#$%^&*\-_]/.test(pw)
+    };
+
+    updateRequirement('req-length', reqs.length);
+    updateRequirement('req-upper', reqs.upper);
+    updateRequirement('req-number', reqs.number);
+    updateRequirement('req-special', reqs.special);
+
+    return Object.values(reqs).every(Boolean);
+}
+
+function updateRequirement(id, isValid) {
+    const el = document.getElementById(id);
+    const icon = el.querySelector('i');
+
+    if (isValid) {
+        el.classList.remove('text-danger', 'text-muted');
+        el.classList.add('text-success');
+        icon.classList.remove('bi-circle', 'bi-x-circle');
+        icon.classList.add('bi-check-circle-fill');
+    } else {
+        el.classList.remove('text-success', 'text-muted');
+        // Only show red if user has typed something, otherwise keep muted (neutral)
+        if (document.getElementById('passwordInput').value.length > 0) {
+            el.classList.add('text-danger');
+            icon.classList.remove('bi-circle', 'bi-check-circle-fill');
+            icon.classList.add('bi-x-circle');
+        } else {
+            el.classList.add('text-muted');
+            el.classList.remove('text-danger');
+            icon.classList.remove('bi-check-circle-fill', 'bi-x-circle');
+            icon.classList.add('bi-circle');
+        }
+    }
+}
+
 function showStep(step) {
     // Hide all steps
     document.querySelectorAll('.step').forEach(el => el.classList.add('d-none'));
@@ -66,6 +114,13 @@ function showStep(step) {
     }
 
     currentStep = step;
+    updateProgressBar(step);
+}
+
+function updateProgressBar(step) {
+    const percent = (step / totalSteps) * 100;
+    const bar = document.getElementById('progressBar');
+    if (bar) bar.style.width = percent + '%';
 }
 
 async function nextStep(step) {
@@ -73,7 +128,7 @@ async function nextStep(step) {
     const inputs = stepEl.querySelectorAll('input, select');
     let valid = true;
 
-    // Basic validation
+    // 1. Basic HTML5 Validation
     inputs.forEach(input => {
         if (!input.checkValidity()) {
             input.reportValidity();
@@ -81,23 +136,27 @@ async function nextStep(step) {
         }
     });
 
-    if (!valid) return;
+    if (!valid) return; // Stop if basic validation fails
 
-    // Specific Step Logic
+    // 2. Step-Specific Logic
     if (step === 1) {
+        // Username Check
         const username = document.getElementById('usernameInput').value;
         const btn = stepEl.querySelector('.btn-next');
-
-        // Disable button while checking
         const originalText = btn.innerHTML;
+
         btn.disabled = true;
         btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Checking...';
 
         try {
+            // Check availability via API
             const isAvailable = await checkUsername(username);
 
             if (isAvailable) {
                 showStep(2);
+            } else {
+                // If not available, checkUsername already showed the error feedback
+                document.getElementById('usernameInput').reportValidity();
             }
         } catch (e) {
             console.error(e);
@@ -108,16 +167,17 @@ async function nextStep(step) {
         }
     }
     else if (step === 2) {
-        // Password validation (min length is already handled by HTML5, but we can add more)
-        const pw = document.getElementById('passwordInput').value;
-        if (pw.length < 8) {
-            alert("Password must be at least 8 characters.");
+        // Password Validation - Check all requirements
+        if (!validatePassword()) {
+            const pwInput = document.getElementById('passwordInput');
+            pwInput.classList.add('is-invalid');
             return;
         }
+        document.getElementById('passwordInput').classList.remove('is-invalid');
         showStep(3);
     }
     else if (step === 3) {
-        // Name validation (basic HTML5 is usually enough)
+        // Names are already validated by HTML5 pattern in step 1 loop above
         showStep(4);
     }
 }

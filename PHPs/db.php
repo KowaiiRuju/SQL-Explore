@@ -73,6 +73,7 @@ function ensure_setup() {
         'email' => 'VARCHAR(255)',
         'gender' => 'VARCHAR(20)',
         'birthdate' => 'DATE',
+        'age' => 'INT DEFAULT 0',
         'profile_pic' => 'VARCHAR(255)',
         'cover_photo' => 'VARCHAR(255)',
         'bio' => 'TEXT',

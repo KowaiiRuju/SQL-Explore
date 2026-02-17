@@ -74,7 +74,12 @@ try {
                         LIMIT 1) as requester_id
                 FROM users u
                 WHERE u.id != :me5 
-                  AND (u.username LIKE :q ESCAPE '\\' OR u.f_name LIKE :q2 ESCAPE '\\' OR u.l_name LIKE :q3 ESCAPE '\\')
+                  AND (
+                    u.username LIKE :q ESCAPE '\\\\' 
+                    OR u.f_name LIKE :q2 ESCAPE '\\\\' 
+                    OR u.l_name LIKE :q3 ESCAPE '\\\\'
+                    OR CONCAT(u.f_name, ' ', u.l_name) LIKE :q4 ESCAPE '\\\\'
+                  )
                 ORDER BY u.username
                 LIMIT 20
             ";
@@ -85,7 +90,7 @@ try {
                 ':me' => $myId, ':me2' => $myId, 
                 ':me3' => $myId, ':me4' => $myId, 
                 ':me5' => $myId,
-                ':q' => $likeQ, ':q2' => $likeQ, ':q3' => $likeQ
+                ':q' => $likeQ, ':q2' => $likeQ, ':q3' => $likeQ, ':q4' => $likeQ
             ]);
             
             $results = $stmt->fetchAll();
