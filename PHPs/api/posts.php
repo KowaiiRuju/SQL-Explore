@@ -6,7 +6,6 @@
  */
 session_start();
 require_once __DIR__ . '/../includes/csrf.php';
-require_once __DIR__ . '/../includes/helpers.php'; // For time_ago
 header('Content-Type: application/json');
 
 if (empty($_SESSION['user'])) {
@@ -234,6 +233,19 @@ try {
                 ];
             }, $comments->fetchAll());
 
+            // Helper function for time_ago if not already loaded
+            if (!function_exists('time_ago')) {
+                function time_ago($datetime) {
+                    $time = strtotime($datetime);
+                    $now = time();
+                    $diff = $now - $time;
+                    if ($diff < 60) return 'Just now';
+                    if ($diff < 3600) return floor($diff / 60) . ' min ago';
+                    if ($diff < 86400) return floor($diff / 3600) . ' h ago';
+                    if ($diff < 2592000) return floor($diff / 86400) . ' d ago';
+                    return date('M j, Y', $time);
+                }
+            }
 
             echo json_encode([
                 'success' => true,

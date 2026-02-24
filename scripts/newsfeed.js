@@ -3,7 +3,7 @@
  */
 
 const API_URL = 'api/posts.php';
-const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || '';
+const CSRF_TOKEN = document.querySelector('meta[name="csrf-token"]')?.content || document.querySelector('input[name="_token"]')?.value || '';
 
 function appendCsrf(formData) {
     if (CSRF_TOKEN) formData.append('_token', CSRF_TOKEN);
@@ -201,9 +201,12 @@ async function deletePost(postId) {
                 card.style.transform = 'scale(0.95)';
                 setTimeout(() => card.remove(), 300);
             }
+        } else {
+            alert('Failed to delete post: ' + (data.error || 'Unknown error'));
         }
     } catch (err) {
         console.error('Delete error:', err);
+        alert('Failed to delete post. Check console for details.');
     }
 }
 

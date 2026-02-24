@@ -20,7 +20,6 @@ require __DIR__ . '/includes/header.php';
                 <li class="nav-item"><a class="nav-link active" href="index.php">Home</a></li>
                 <li class="nav-item"><a class="nav-link" href="about_us.php">About Us</a></li>
                 <li class="nav-item"><a class="nav-link" href="login.php">Login</a></li>
-                <li class="nav-item"><a class="nav-link" href="signup.php">Sign Up</a></li>
             </ul>
             <div class="d-flex ms-lg-4">
                 <a href="<?php echo isset($_SESSION['user']) ? 'newsfeed.php' : 'signup.php'; ?>" class="btn btn-primary rounded-pill px-4 fw-bold">Get Started</a>
@@ -56,6 +55,66 @@ require __DIR__ . '/includes/header.php';
         </div>
     </div>
 </main>
+
+<!-- About the Creator Section -->
+<section class="creator-section" id="creator">
+    <div class="container">
+        <h2 class="section-heading text-center mb-5">About the Creator</h2>
+        <div class="row align-items-center g-5">
+            <!-- Profile Picture -->
+            <div class="col-lg-4 text-center">
+                <div class="creator-avatar-wrapper mx-auto">
+                    <img src="../images/pfp_emman.jpg" alt="Emmanuel V. Sanchez" class="creator-avatar" draggable="false"/>
+                </div>
+                <p class="creator-quote mt-4">"Everything Goes On"</p>
+            </div>
+
+            <!-- Creator Info -->
+            <div class="col-lg-8">
+                <h3 class="creator-name">Emmanuel V. Sanchez</h3>
+                <span class="creator-badge"><i class="bi bi-mortarboard-fill me-1"></i>BS Computer Science</span>
+
+                <p class="creator-bio mt-3">
+                    Born on December 24, 2003, he had always been easy-going. He didn't strive for anything. 
+                    But now that he's actively pursuing something, only God can tell what lies ahead of him.
+                </p>
+
+                <div class="creator-details mt-4">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="detail-card">
+                                <i class="bi bi-heart-fill detail-icon"></i>
+                                <div>
+                                    <span class="detail-label">Likes</span>
+                                    <span class="detail-value">Chocolate, RPG Games</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="detail-card">
+                                <i class="bi bi-controller detail-icon"></i>
+                                <div>
+                                    <span class="detail-label">Hobbies</span>
+                                    <span class="detail-value">Chess, 2D Art Illustration</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Links -->
+                <div class="creator-socials mt-4">
+                    <a href="https://github.com/kowaii/" target="_blank" rel="noopener" class="social-btn" title="GitHub">
+                        <i class="bi bi-github"></i>
+                    </a>
+                    <a href="https://www.instagram.com/ruju.pi" target="_blank" rel="noopener" class="social-btn" title="Instagram">
+                        <i class="bi bi-instagram"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <!-- Background Graphic -->
 <div class="landing-bg-wave"></div>
