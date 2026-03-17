@@ -45,7 +45,6 @@ function openEditUserModal(userId) {
     document.getElementById('editUsername').value = user.username;
     document.getElementById('editPassword').value = '';
     document.getElementById('editFname').value = user.f_name;
-    document.getElementById('editMname').value = user.m_name;
     document.getElementById('editLname').value = user.l_name;
     document.getElementById('editEmail').value = user.email;
     document.getElementById('editGender').value = user.gender;

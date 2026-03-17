@@ -596,7 +596,114 @@ function timeAgo($datetime) {
     </div>
 </div>
 
+<script>
+let currentPostIdInLightbox = null;
 
+function openLightbox(src) {
+    // Find the post from the image source
+    const allImages = document.querySelectorAll('.clickable-image');
+    let postCard = null;
+    
+    for (let img of allImages) {
+        if (img.src === src || img.src.includes(src)) {
+            postCard = img.closest('.post-card');
+            break;
+        }
+    }
+    
+    if (postCard) {
+        const postIdMatch = postCard.id.match(/\d+/);
+        const postId = postIdMatch ? parseInt(postIdMatch[0]) : null;
+        
+        if (postId) {
+            currentPostIdInLightbox = postId;
+            loadPostDetailsInLightbox(postId);
+        }
+    }
+    
+    document.getElementById('lightboxImage').src = src;
+    new bootstrap.Modal(document.getElementById('imageLightboxModal')).show();
+}
+
+function loadPostDetailsInLightbox(postId) {
+    fetch('api/posts.php?action=get_post_details&post_id=' + postId)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                const post = data.post;
+                
+                // Update post content
+                document.getElementById('lightboxPostContent').textContent = post.content;
+                document.getElementById('lightboxPostTime').textContent = post.time_ago;
+                document.getElementById('lightboxAuthorName').textContent = post.author_name;
+                document.getElementById('lightboxAuthorPic').src = '../uploads/' + (post.author_pic || 'default.jpg');
+                
+                // Update stats
+                document.getElementById('lightboxLikeCount').textContent = post.like_count;
+                document.getElementById('lightboxCommentCount').textContent = post.comment_count;
+                
+                // Update likes list
+                const likesList = document.getElementById('lightboxLikesList');
+                if (post.likes && post.likes.length > 0) {
+                    likesList.innerHTML = post.likes.map(like => `
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <img src="../uploads/${like.profile_pic || 'default.jpg'}" class="rounded-circle" style="width:28px; height:28px; object-fit:cover;">
+                            <small class="text-white">${like.name}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    likesList.innerHTML = '<small class="text-secondary">No likes yet</small>';
+                }
+                
+                // Update comments list
+                const commentsList = document.getElementById('lightboxCommentsList');
+                if (post.comments && post.comments.length > 0) {
+                    commentsList.innerHTML = post.comments.map(comment => `
+                        <div class="mb-3 pb-3 border-bottom border-secondary">
+                            <div class="d-flex gap-2 mb-2">
+                                <img src="../uploads/${comment.profile_pic || 'default.jpg'}" class="rounded-circle" style="width:28px; height:28px; object-fit:cover;">
+                                <div class="flex-grow-1">
+                                    <small class="text-white d-block"><strong>${comment.name}</strong></small>
+                                    <small class="text-secondary">${comment.content}</small>
+                                </div>
+                            </div>
+                            <small class="text-secondary ms-5">${comment.time_ago}</small>
+                        </div>
+                    `).join('');
+                } else {
+                    commentsList.innerHTML = '<small class="text-secondary">No comments yet</small>';
+                }
+            }
+        })
+        .catch(err => console.error('Error loading post details:', err));
+}
+
+function submitCommentFromLightbox() {
+    const input = document.getElementById('lightboxCommentInput');
+    const content = input.value.trim();
+    
+    if (!content || !currentPostIdInLightbox) return;
+    
+    const formData = new FormData();
+    formData.append('action', 'add_comment');
+    formData.append('post_id', currentPostIdInLightbox);
+    formData.append('content', content);
+    formData.append('_token', document.querySelector('input[name="_token"]')?.value || '');
+    
+    fetch('api/posts.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            input.value = '';
+            loadPostDetailsInLightbox(currentPostIdInLightbox);
+        }
+    })
+    .catch(err => console.error('Error submitting comment:', err));
+}
+</script>
 
 <?php
 $pageScripts = ['newsfeed.js'];

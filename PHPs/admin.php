@@ -28,7 +28,6 @@ try {
                 $p       = $_POST['password'] ?? '';
                 $isAdmin = !empty($_POST['is_admin']) ? 1 : 0;
                 $fn      = trim($_POST['f_name'] ?? '');
-                $mn      = trim($_POST['m_name'] ?? '');
                 $ln      = trim($_POST['l_name'] ?? '');
                 $em      = trim($_POST['email'] ?? '');
                 $gen     = $_POST['gender'] ?? '';
@@ -40,15 +39,14 @@ try {
                 } else {
                     $hash = password_hash($p, PASSWORD_DEFAULT);
                     $stmt = $pdo->prepare(
-                        'INSERT INTO users (username, password, is_admin, f_name, m_name, l_name, email, gender, birthdate, team_id)
-                         VALUES (:u, :p, :a, :fn, :mn, :ln, :e, :g, :b, :t)'
+                        'INSERT INTO users (username, password, is_admin, f_name, l_name, email, gender, birthdate, team_id)
+                         VALUES (:u, :p, :a, :fn, :ln, :e, :g, :b, :t)'
                     );
                     $stmt->execute([
                         ':u'  => $u,
                         ':p'  => $hash,
                         ':a'  => $isAdmin,
                         ':fn' => $fn,
-                        ':mn' => $mn,
                         ':ln' => $ln,
                         ':e'  => $em,
                         ':g'  => $gen,
@@ -65,7 +63,6 @@ try {
                 $isAdmin = !empty($_POST['is_admin']) ? 1 : 0;
 
                 $fn        = trim($_POST['f_name'] ?? '');
-                $mn        = trim($_POST['m_name'] ?? '');
                 $ln        = trim($_POST['l_name'] ?? '');
                 $em        = trim($_POST['email'] ?? '');
                 $gen       = $_POST['gender'] ?? '';
@@ -75,12 +72,11 @@ try {
                 if ($id <= 0 || $u === '') {
                     $error = 'Invalid input for edit.';
                 } else {
-                    $sql    = "UPDATE users SET username=:u, is_admin=:a, f_name=:fn, m_name=:mn, l_name=:ln, email=:e, gender=:g, birthdate=:b, team_id=:t";
+                    $sql    = "UPDATE users SET username=:u, is_admin=:a, f_name=:fn, l_name=:ln, email=:e, gender=:g, birthdate=:b, team_id=:t";
                     $params = [
                         ':u'  => $u,
                         ':a'  => $isAdmin,
                         ':fn' => $fn,
-                        ':mn' => $mn,
                         ':ln' => $ln,
                         ':e'  => $em,
                         ':g'  => $gen,
@@ -214,11 +210,7 @@ require __DIR__ . '/includes/header.php';
                                                     <option value="user">Users Only</option>
                                                 </select>
                                             </div>
-                                            <div class="col-md-2 d-flex align-items-end">
-                                                <button type="button" class="btn btn-sm btn-outline-danger w-100" onclick="clearFilters()" title="Clear filters" aria-label="Clear all filters">
-                                                    <i class="bi bi-x-lg me-1" aria-hidden="true"></i>Clear
-                                                </button>
-                                            </div>
+                                            
                                         </div>
                                     </div>
                                 </div>
@@ -316,15 +308,11 @@ require __DIR__ . '/includes/header.php';
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label" for="newFname">First Name</label>
                             <input type="text" id="newFname" name="f_name" class="form-control">
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="newMname">Middle Name</label>
-                            <input type="text" id="newMname" name="m_name" class="form-control">
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label" for="newLname">Last Name</label>
                             <input type="text" id="newLname" name="l_name" class="form-control">
                         </div>
@@ -397,15 +385,11 @@ require __DIR__ . '/includes/header.php';
                             <input type="password" id="editPassword" name="password" class="form-control">
                         </div>
 
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label" for="editFname">First Name</label>
                             <input type="text" id="editFname" name="f_name" class="form-control">
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label" for="editMname">Middle Name</label>
-                            <input type="text" id="editMname" name="m_name" class="form-control">
-                        </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label" for="editLname">Last Name</label>
                             <input type="text" id="editLname" name="l_name" class="form-control">
                         </div>
@@ -462,7 +446,6 @@ require __DIR__ . '/includes/header.php';
             'id'        => (int) $u['id'],
             'username'  => $u['username'],
             'f_name'    => $u['f_name'] ?? '',
-            'm_name'    => $u['m_name'] ?? '',
             'l_name'    => $u['l_name'] ?? '',
             'email'     => $u['email'] ?? '',
             'gender'    => $u['gender'] ?? '',

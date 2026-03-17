@@ -68,7 +68,6 @@ function ensure_setup() {
     // Add missing columns
     $desiredColumns = [
         'f_name' => 'VARCHAR(100)',
-        'm_name' => 'VARCHAR(100)',
         'l_name' => 'VARCHAR(100)',
         'email' => 'VARCHAR(255)',
         'gender' => 'VARCHAR(20)',
